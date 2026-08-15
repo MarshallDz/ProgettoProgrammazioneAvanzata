@@ -1,0 +1,12 @@
+# Dipendenze
+node_modules/
+
+# Build
+dist/
+
+# Environment
+.env
+
+# File Mac OS
+.DS_Store
+
