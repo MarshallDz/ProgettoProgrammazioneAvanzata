@@ -1,10 +1,17 @@
+# Ignore the .env file, node_modules, and dist directories
 .env
 node_modules/
 dist/
 
+# Ignore git files and directories
 .git/
 .gitignore
 
+# Ignore Docker-related files
 Dockerfile
 docker-compose.yml
 .dockerignore
+
+# Ignore readme files and markdown files
+readme.md
+*.md
