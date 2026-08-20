@@ -1,6 +1,7 @@
 import bcript from "bcrypt";
 import sequelize from "../config/database";
 import User from "../models/User";
+import {Role} from "../types/roles";
 
 async function seedDatabase() {
   try {
@@ -11,8 +12,8 @@ async function seedDatabase() {
     await User.create({
       username: "admin",
       password: hashedPassword,
-      ruolo: "admin",
-      crediti: 1000,
+      role: Role.ADMIN,
+      tokenCredit: 1000,
     });
     
     // Create a regular user
@@ -20,8 +21,8 @@ async function seedDatabase() {
     await User.create({
       username: "user",
       password: hashedUserPassword,
-      ruolo: "user",
-      crediti: 100,
+      role: Role.USER,
+      tokenCredit: 100,
     });
     
     console.log("Database seeded successfully.");
