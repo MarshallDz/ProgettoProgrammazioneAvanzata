@@ -1,10 +1,11 @@
-const {Sequelize, DataTypes} = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 import sequelize from '../config/database';
+import { Role } from '../types/roles';
 
 const User = sequelize.define('User', {
   id: {
     type: DataTypes.UUID,
-    defaultValue: Sequelize.UUIDV4,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
   username: {
@@ -16,13 +17,13 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  ruolo: { 
-    type: DataTypes.ENUM('admin', 'user'),
-    defaultValue: 'user',
+  role: {
+    type: DataTypes.ENUM(...Object.values(Role)), // Use the Role enum values for the ENUM type
+    defaultValue: Role.USER,
     allowNull: false
   },
-  crediti: {
-    type: DataTypes.INTEGER,
+  tokenCredit: {
+    type: DataTypes.DECIMAL(10, 3),
     defaultValue: 0,
     allowNull: false
   }
