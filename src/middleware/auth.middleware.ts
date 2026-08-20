@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
+import {Role} from "../types/roles";
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
@@ -9,7 +10,6 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
   if (!token) {
     throw ErrorFactory.createError(ErrorTypes.Unauthorized, 'Accesso negato. Nessun token fornito.'); // Unauthorized
   }
-    console.log('Token ricevuto:', token); // Log the received token for debugging
     jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
         if (err) {
             throw ErrorFactory.createError(ErrorTypes.Forbidden, 'Token non valido.'); // Forbidden
@@ -22,7 +22,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 // Middleware to authorize admin users
 export const authorizeAdmin = (req: Request, res: Response, next: NextFunction) => {
   const user = (req as any).user;
-  if (user.ruolo !== 'admin') {
+  if (user.role !== Role.ADMIN) {
     throw ErrorFactory.createError(ErrorTypes.Forbidden, 'Accesso negato. Solo gli amministratori possono accedere a questa risorsa.'); // Forbidden
   }
   next();
@@ -32,7 +32,7 @@ export const authorizeAdmin = (req: Request, res: Response, next: NextFunction) 
 export const roleMiddleware = (requiredRole: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user;
-    if (!user || user.ruolo !== requiredRole) {
+    if (!user || user.role !== requiredRole) {
       throw ErrorFactory.createError(ErrorTypes.Forbidden, 'Accesso negato. Ruolo non autorizzato.'); // Forbidden
     }
     next();
