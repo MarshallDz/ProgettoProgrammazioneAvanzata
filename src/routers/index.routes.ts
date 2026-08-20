@@ -4,7 +4,7 @@ import { authenticateToken, authorizeAdmin } from '../middleware/auth.middleware
 import { getAllUsers, updateUserCredits } from '../controllers/admin.controller';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import authRoutes from './auth.routes';
-import provaRoutes from './prova.routes';
+import gridRoutes from './grid.routes';     
 
 const router = Router();
 
@@ -14,8 +14,7 @@ router.get('/health', (_req: Request, res: Response) => {
 });
 
 router.use('/auth', authRoutes);
-router.use('/', provaRoutes);
-
+router.use('/grids', gridRoutes);
 // Route to get all users (admin only)
 router.get('/users', authenticateToken, authorizeAdmin, getAllUsers);
 
