@@ -29,7 +29,8 @@ export enum ErrorTypes {
     Forbidden = 'Forbidden',
     TokenExpired = 'TokenExpired',
     JsonWebTokenError = 'JsonWebTokenError',
-    ZodError = 'ZodError'
+    ZodError = 'ZodError',
+    InsufficientCreditError = 'InsufficientCreditError'
   }
   
   /**
@@ -56,6 +57,8 @@ export enum ErrorTypes {
           return new HttpError(StatusCodes.BAD_REQUEST, message, 'JWT_ERROR');
         case ErrorTypes.ZodError:
           return new HttpError(StatusCodes.BAD_REQUEST, message, 'ZOD_ERROR');
+        case ErrorTypes.InsufficientCreditError:
+          return new HttpError(StatusCodes.BAD_REQUEST, message, 'INSUFFICIENT_CREDIT_ERROR')
         case ErrorTypes.InternalServerError:
         default:
           return new HttpError(StatusCodes.INTERNAL_SERVER_ERROR, message, 'INTERNAL_SERVER_ERROR');

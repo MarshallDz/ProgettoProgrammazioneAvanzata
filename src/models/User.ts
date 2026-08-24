@@ -1,8 +1,31 @@
-const { Sequelize, DataTypes } = require('sequelize');
+// src/models/User.ts
+import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 import { Role } from '../types/roles';
 
-const User = sequelize.define('User', {
+interface UserAttributes {
+  id: string;
+  username: string;
+  password: string;
+  role: Role;
+  tokenCredit: number;
+}
+
+export interface UserCreationAttributes
+  extends Optional<UserAttributes, 'id' | 'role' | 'tokenCredit'> {}
+
+class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+  declare id: string;
+  declare username: string;
+  declare password: string;
+  declare role: Role;
+  declare tokenCredit: number;
+
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
+}
+
+User.init({
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -18,15 +41,19 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
   role: {
-    type: DataTypes.ENUM(...Object.values(Role)), // Use the Role enum values for the ENUM type
+    type: DataTypes.ENUM(...Object.values(Role)),
     defaultValue: Role.USER,
-    allowNull: false
+    allowNull: false,
   },
   tokenCredit: {
     type: DataTypes.DECIMAL(10, 3),
     defaultValue: 0,
-    allowNull: false
-  }
+    allowNull: false,
+  },
+}, {
+  sequelize,
+  tableName: 'users',
+  timestamps: true,
 });
 
 export default User;

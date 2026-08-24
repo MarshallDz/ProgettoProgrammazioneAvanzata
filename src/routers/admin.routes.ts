@@ -1,13 +1,12 @@
 import { Router } from 'express';
 import { authenticateToken, authorizeAdmin } from '../middleware/auth.middleware';
-import { getAllUsers, updateUserCredits } from '../controllers/admin.controller';
+import { updateUserCredits } from '../controllers/admin.controller';
 
-const router = Router();
-
-// Route to get all users (admin only)
-router.get('/users', authenticateToken, authorizeAdmin, getAllUsers);
+// Enable parameters inheritence from the main route define in index.routes.ts
+// Otherwise parameter id would't reach the sub-route
+const router = Router({ mergeParams: true }); 
 
 // Route to update user credits (admin only)
-router.put('/users/:id/credits', authenticateToken, authorizeAdmin, updateUserCredits);
+router.patch('', authenticateToken, authorizeAdmin, updateUserCredits);
 
 export default router;

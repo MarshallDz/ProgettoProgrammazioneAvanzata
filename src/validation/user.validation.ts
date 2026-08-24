@@ -1,11 +1,15 @@
 import * as z from "zod";
 
 export const registerSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters long"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
+  username: z.string("username is mandatory").min(3, "Username must be at least 3 characters long"),
+  password: z.string("password is mandatory").min(6, "Password must be at least 6 characters long"),
 });
 
 export const loginSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters long"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
+  username: z.string("username is mandatory").min(3, "Username must be at least 3 characters long"),
+  password: z.string("password is mandatory").min(6, "Password must be at least 6 characters long"),
+});
+
+export const adminSchema = z.object({
+  newCredit: z.number("new credit amount is mandatory").nonnegative("new credit must be positive")
 });

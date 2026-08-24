@@ -13,7 +13,6 @@ export const initModels = async () => {
         await sequelize.authenticate();
         console.log("Database connection has been established successfully.");
         
-        
         // Sync all models
         await sequelize.sync({ alter: true });
         console.log("All models were synchronized successfully.");

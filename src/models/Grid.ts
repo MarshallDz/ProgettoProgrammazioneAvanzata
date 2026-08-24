@@ -5,8 +5,8 @@ interface GridAttributes {
   id: string;
   name: string;
   ownerId: string;
-  rows: number;
-  columns: number;
+  width: number;
+  height: number;
   gridData: number[][];
   currentVersion: number;
 }
@@ -17,8 +17,8 @@ export class Grid extends Model<GridAttributes, GridCreationAttributes> implemen
   declare id: string;
   declare name: string;
   declare ownerId: string;
-  declare rows: number;
-  declare columns: number;
+  declare width: number;
+  declare height: number;
   declare gridData: number[][];
   declare currentVersion: number;
 
@@ -30,8 +30,8 @@ Grid.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   name: { type: DataTypes.STRING, allowNull: false },
   ownerId: { type: DataTypes.UUID, allowNull: false },
-  rows: { type: DataTypes.INTEGER, allowNull: false },
-  columns: { type: DataTypes.INTEGER, allowNull: false },
+  width: { type: DataTypes.INTEGER, allowNull: false },
+  height: { type: DataTypes.INTEGER, allowNull: false },
   gridData: { type: DataTypes.JSONB, allowNull: false },
   currentVersion: { type: DataTypes.INTEGER, defaultValue: 1, allowNull: false },
 }, {
