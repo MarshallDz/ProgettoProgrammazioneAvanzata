@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { UpdateStatus } from "../types/updateStatus";
 
 export const updateRequestSchema = z.object({
     toApprove : z.boolean('Parameter must be a boolean value')
@@ -11,4 +12,10 @@ const singleIdSchema = z.object({
 export const updateRequestBatchSchema = z.object({
     ids: z.array(z.string()).nonempty(),
     toApprove : z.boolean('Parameter must be a boolean value')
+})
+
+export const getRequestsByModelIdSchema = z.object({
+    from: z.iso.date("Invalid date format").transform(val => new Date(val)).optional(),
+    to: z.iso.date("Invalid date format").transform(val => new Date(val)).optional(),
+    status: z.enum([UpdateStatus.ACCEPTED, UpdateStatus.REJECTED])
 })

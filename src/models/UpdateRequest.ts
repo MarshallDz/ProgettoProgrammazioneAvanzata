@@ -7,6 +7,7 @@ interface UpdateRequestAttributes {
   id: string;
   modelId: string;
   userId: string;
+  gridData: number[][];
   status: UpdateStatus;
 }
 
@@ -18,6 +19,7 @@ class UpdateRequest extends Model<UpdateRequestAttributes, UpdateRequestCreation
   declare id: string;
   declare modelId: string;
   declare userId: string;
+  declare gridData: number[][];
   declare status: UpdateStatus;
 
   declare readonly createdAt: Date;
@@ -38,6 +40,7 @@ UpdateRequest.init({
     type: DataTypes.UUID,
     allowNull: false,
   },
+  gridData: { type: DataTypes.JSONB, allowNull: false },
   status: {
     type: DataTypes.ENUM(...Object.values(UpdateStatus)),
     defaultValue: UpdateStatus.PENDING,

@@ -26,7 +26,7 @@ router.use('/auth', authRoutes);
 router.use('/grids', authenticateToken, checkUserCredit(userRepository), gridRoutes);
 
 // Routes to manage update requests
-router.use('/updateRequest', authenticateToken, updateRequestRoutes);
+router.use('/updateRequests', authenticateToken, updateRequestRoutes);
 
 // Route to update user credits (admin only)
 router.use('/users/:id/credits', authenticateToken, authorizeAdmin, checkUserExists(userRepository), adminRoutes);

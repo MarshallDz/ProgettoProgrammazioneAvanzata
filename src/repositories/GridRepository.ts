@@ -1,10 +1,10 @@
 import { IGridRepository } from "../interfaces/repositories/IGridRepository";
-import { literal } from "sequelize";
+import { literal, Transaction } from "sequelize";
 import Grid from "../models/Grid";
 
 export class GridRepository implements IGridRepository {
 
-    async createGrid(gridData: Grid): Promise<Grid> {
+    async createGrid(gridData: Grid, transaction?: Transaction): Promise<Grid> {
         return await Grid.create({
             name: gridData.name,
             ownerId: gridData.ownerId,
@@ -12,14 +12,14 @@ export class GridRepository implements IGridRepository {
             height: gridData.height,
             gridData: gridData.gridData,
             currentVersion: gridData.currentVersion
-        });
+        }, { transaction });
     }
 
-    async getGridById(id: string): Promise<Grid | null> {
-        return await Grid.findByPk(id);
+    async getGridById(id: string, transaction?: Transaction): Promise<Grid | null> {
+        return await Grid.findByPk(id, { transaction });
     }
 
-    async updateGrid(id: string, updatedData: number[][]): Promise<void> {
+    async updateGrid(id: string, updatedData: number[][], transaction?: Transaction): Promise<void> {
         await Grid.update(
             {
                 gridData: updatedData,
@@ -28,7 +28,8 @@ export class GridRepository implements IGridRepository {
             {
                 where: {
                     id: id
-                }
+                },
+                transaction,
             }
         );
     }
@@ -42,4 +43,11 @@ export class GridRepository implements IGridRepository {
         return await Grid.findAll();
     }
 
+    async getAllGridsByUserId(userId: string): Promise<Grid[]> {
+        return await Grid.findAll({
+            where: {
+                ownerId: userId
+            }
+        });
+    }
 }

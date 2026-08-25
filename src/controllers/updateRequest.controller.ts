@@ -2,7 +2,9 @@ import {Request, Response, NextFunction} from 'express';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import { IUpdateRequestRepository } from '../interfaces/repositories/IUpdateRequestRepository';
 import { IGridRepository } from '../interfaces/repositories/IGridRepository';
-import { updateRequestSchema, updateRequestBatchSchema } from '../validation/updateRequest.validation';
+import { updateRequestSchema, updateRequestBatchSchema, getRequestsByModelIdSchema } from '../validation/updateRequest.validation';
+import { UpdateStatus } from '../types/updateStatus';
+import UpdateRequest from '../models/UpdateRequest';
 
 export class UpdateRequestController {
     constructor(private updateRequestRepository: IUpdateRequestRepository, private gridRepository: IGridRepository) {}
@@ -30,7 +32,6 @@ export class UpdateRequestController {
             
             return res.status(200).json({
                 message: `Richiesta ${id} aggiornata con successo`,
-                // data: updatedRequest
             });
         }
         catch(err){
@@ -48,24 +49,86 @@ export class UpdateRequestController {
             }
             const { ids, toApprove } = result.data;
             const currentUserId = req.user.id;
-            ids.forEach(id => async () => {
-                // For each id check if the current user is the owner
-                isOwner = await this.checkOwner(id, currentUserId);
-                if(!isOwner){
-                    return next(ErrorFactory.createError(ErrorTypes.Unauthorized, `Unauthorized to accept/reject the request with id: ${id}. Not the owner.`));
+            // For each id check if the user is the owner
+            for (const id of ids) {
+                const isOwner = await this.checkOwner(id, currentUserId);
+                
+                if (!isOwner) {
+                    // If not the owner reject the update
+                    return next(ErrorFactory.createError(
+                        ErrorTypes.Unauthorized, 
+                        `Unauthorized to accept/reject the request with id: ${id}. Not the owner.`
+                    ));
                 }
-                // Approve or reject the update request by id
-                await this.updateRequestRepository.updateRequest(toApprove, id); 
-            });
+            }
+
+            // For each update request in the batch update the status with approve/reject             
+            for (const id of ids) {
+                await this.updateRequestRepository.updateRequest(toApprove, id);
+            }
 
             return res.status(200).json({
-                message: `Richiesta per id ${ids} aggiornata con successo`,
-                // data: updatedRequest
+                message: `Request for ids ${ids} successfully updated`,
             });
         }
         catch(err){
             next(err);
         }        
+    }
+
+    getRequestsByModelId = async(req: Request, res: Response, next: NextFunction) => {
+        try{
+            const result = await getRequestsByModelIdSchema.safeParseAsync(req.query);
+            if (!result.success) {
+                const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
+                return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
+            }
+
+            const {from, to, status} = result.data;
+            const modelId = req.params["modelId"] as string;
+            
+            // Retrieve the update request from db
+            const queryResult = await this.updateRequestRepository.getUpdateRequestsByModelId(modelId, status, from, to);
+
+            return res.status(200).json(queryResult);
+        }
+        catch(err){
+            next(err);
+        }
+    }
+
+    getPendingRequestsByModelId = async(req: Request, res: Response, next: NextFunction) => {
+        try{
+            const modelId = req.params["modelId"] as string;
+            
+            // Retrieve the update request from db
+            const queryResult = await this.updateRequestRepository.GetPendingUpdateRequestsByModelId(modelId);
+
+            return res.status(200).json(queryResult);
+        }
+        catch(err){
+            next(err);
+        }
+    }
+
+    getPendingRequests = async(req: Request, res: Response, next: NextFunction) => {
+        try{
+            const id = req.user.id;
+            
+            // Fetch all grids of the current user
+            var userGrids = await this.gridRepository.getAllGridsByUserId(id);
+            
+            // For each grid fetch the update requests in pending
+            let updateRequests: UpdateRequest[] = [];
+            for(const grid of userGrids){
+                updateRequests.push(...await this.updateRequestRepository.getUpdateRequestsByModelId(grid.id, UpdateStatus.PENDING));
+            }
+
+            return res.status(200).json(updateRequests);
+        }
+        catch(err){
+            next(err);
+        }
     }
 
     // Private helper
@@ -81,7 +144,7 @@ export class UpdateRequestController {
 
         //check if the current user is the owner that can accept/reject the request
         const ownerId = grid?.ownerId;
-        return currentUserId === ownerId ? true : false;
+        return currentUserId === ownerId;
     }
 }
 
