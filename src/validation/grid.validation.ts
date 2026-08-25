@@ -25,3 +25,15 @@ export const gridSchema = z.object({
 export const gridUpdateSchema = z.object({
     matrix: matrixSchema
 })
+
+// Single point of the grid (es. start position)
+const positionSchema = z.object({
+    x: z.number({ message: "x must be a number" }),
+    y: z.number({ message: "y must be a number" })
+});
+
+// Grid execution schema
+export const gridExecutionSchema = z.object({
+    start: positionSchema,
+    goal: positionSchema
+})

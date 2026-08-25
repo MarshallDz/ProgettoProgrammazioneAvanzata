@@ -18,4 +18,7 @@ router.post('', gridController.createGrid);
 // Update a grid
 router.patch('/:id', checkGridExists(gridRepository), gridController.updateGrid);
 
+// Run a model
+router.post("/:id/run", checkGridExists(gridRepository), gridController.runGrid);
+
 export default router;

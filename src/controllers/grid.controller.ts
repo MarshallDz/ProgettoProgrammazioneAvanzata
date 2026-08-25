@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import { AStarFinder } from 'astar-typescript';
-import { gridSchema, gridUpdateSchema } from '../validation/grid.validation';
+import { gridSchema, gridUpdateSchema, gridExecutionSchema } from '../validation/grid.validation';
 import { IUserRepository } from '../interfaces/repositories/IUserRepository';
 import { IGridRepository } from '../interfaces/repositories/IGridRepository';
 import { IUpdateRequestRepository } from "../interfaces/repositories/IUpdateRequestRepository";
@@ -126,6 +126,30 @@ export class GridController {
     }
 
     runGrid = async (req: Request, res: Response, next: NextFunction) => {
-        
+        try{
+            const gridId = req.params["id"] as string;
+            const result = await gridExecutionSchema.safeParseAsync(req.body);
+            if (!result.success) {
+                const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
+                return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
+            }
+            
+            const {start, goal} = result.data
+            // Fetch grid from db
+            const grid = await this.gridRepository.getGridById(gridId);
+            
+            // Create the AStarFinder object
+            let aStarInstance: AStarFinder;
+            aStarInstance = new AStarFinder({
+                grid: {
+                    matrix: grid?.gridData
+                }
+            });
+            let myPathway = aStarInstance.findPath(start, goal);
+            res.status(201).json(myPathway);
+        }
+        catch(err){
+            next(err);
+        }
     }
 }
