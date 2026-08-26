@@ -6,6 +6,7 @@ import { Request, Response, NextFunction } from "express";
 import { ErrorFactory, ErrorTypes } from "../utils/errorFactory";
 import { z } from "zod";
 import * as fs from 'fs';
+import { SuccessFactory, SuccessTypes } from "../utils/successFactory";
 
 const private_key = fs.readFileSync('jwtRS256.key', 'utf-8');
 
@@ -32,8 +33,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
     // Create a new user
     const newUser = await User.create({ username, password: hashedPassword });
-
-    res.status(201).json({ message: "User registered successfully.", user: newUser });
+    SuccessFactory.createSuccess(SuccessTypes.Created, `User registered successfully.`, newUser).send(res);
   } catch (error) {
     console.error(error);
     if (error instanceof z.ZodError) {
@@ -72,8 +72,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       expiresIn: "1h",
       algorithm: "RS256"
     });
-
-    res.json({ message: "Login successful.", token });
+    SuccessFactory.createSuccess(SuccessTypes.Ok, `Login successfull.`, token).send(res);
   } catch (error) {
     console.error(error);
     if (error instanceof z.ZodError) {

@@ -72,8 +72,8 @@ async function seedDatabase() {
       width: 4,
       height: 3,
       gridData: [
-        [1, 1, 0],
-        [0, 1, 1],
+        [0, 1, 0],
+        [0, 0, 1],
         [1, 0, 0],
         [0, 0, 1]
       ],
@@ -88,7 +88,7 @@ async function seedDatabase() {
       width: 2,
       height: 4,
       gridData: [
-        [0, 1, 1, 0],
+        [0, 0, 1, 0],
         [1, 0, 0, 1]
       ],
       currentVersion: 2
@@ -101,7 +101,7 @@ async function seedDatabase() {
       width: 8,
       height: 8,
       gridData: [
-        [1, 0, 1, 1, 0, 0, 1, 0],
+        [0, 0, 1, 1, 0, 0, 1, 0],
         [0, 1, 1, 0, 1, 1, 0, 1],
         [1, 1, 0, 0, 0, 1, 1, 0],
         [0, 0, 1, 1, 1, 0, 0, 1],
@@ -118,7 +118,7 @@ async function seedDatabase() {
       modelId: "4ca451a3-100b-4c45-81e3-01f44ad7f085",
       userId: "21681bf9-848f-4692-aefd-c78fe20ce182",
       gridData: [
-        [0, 1, 1, 0],
+        [0, 0, 1, 0],
         [1, 0, 0, 1]
       ],
       status: UpdateStatus.ACCEPTED
@@ -129,8 +129,8 @@ async function seedDatabase() {
       modelId: "2e1fd4b0-5a12-414a-926b-ead5dd1adb65",
       userId: "21681bf9-848f-4692-aefd-c78fe20ce182",
       gridData: [
-        [1, 1, 0],
-        [0, 1, 1],
+        [0, 1, 0],
+        [0, 0, 1],
         [1, 0, 0],
         [0, 0, 1]
       ],
@@ -142,7 +142,7 @@ async function seedDatabase() {
       modelId: "35713e5d-4dd4-4abb-aa2d-b7ec7d531c96",
       userId: "21681bf9-848f-4692-aefd-c78fe20ce182",
       gridData: [
-        [1, 0, 1],
+        [0, 0, 1],
         [0, 1, 0],
         [1, 1, 0]
       ],

@@ -5,6 +5,7 @@ import { IGridRepository } from '../interfaces/repositories/IGridRepository';
 import { updateRequestSchema, updateRequestBatchSchema, getRequestsByModelIdSchema } from '../validation/updateRequest.validation';
 import { UpdateStatus } from '../types/updateStatus';
 import UpdateRequest from '../models/UpdateRequest';
+import { SuccessFactory, SuccessTypes } from '../utils/successFactory';
 
 export class UpdateRequestController {
     constructor(private updateRequestRepository: IUpdateRequestRepository, private gridRepository: IGridRepository) {}
@@ -18,7 +19,7 @@ export class UpdateRequestController {
             }
             const { toApprove } = result.data;
             // Get update_request_id of the grid to update
-            const id = req.params.id as string;
+            const id = req.params.modelId as string;
             
             const currentUserId = req.user.id;
             const isOwner = await this.checkOwner(id, currentUserId);
@@ -29,10 +30,7 @@ export class UpdateRequestController {
 
             // Approve or reject the update request by id
             await this.updateRequestRepository.updateRequest(toApprove, id);
-            
-            return res.status(200).json({
-                message: `Richiesta ${id} aggiornata con successo`,
-            });
+            SuccessFactory.createSuccess(SuccessTypes.Updated, `Richiesta ${id} aggiornata con successo`).send(res);
         }
         catch(err){
             next(err);
@@ -66,10 +64,7 @@ export class UpdateRequestController {
             for (const id of ids) {
                 await this.updateRequestRepository.updateRequest(toApprove, id);
             }
-
-            return res.status(200).json({
-                message: `Request for ids ${ids} successfully updated`,
-            });
+            SuccessFactory.createSuccess(SuccessTypes.Updated, `Request for ids ${ids} successfully updated`).send(res);
         }
         catch(err){
             next(err);
@@ -89,8 +84,7 @@ export class UpdateRequestController {
             
             // Retrieve the update request from db
             const queryResult = await this.updateRequestRepository.getUpdateRequestsByModelId(modelId, status, from, to);
-
-            return res.status(200).json(queryResult);
+            SuccessFactory.createSuccess(SuccessTypes.Ok, queryResult.length === 0 ? `the model with id ${modelId} has no update requests with status '${status}'`: '', queryResult).send(res);          
         }
         catch(err){
             next(err);
@@ -104,7 +98,7 @@ export class UpdateRequestController {
             // Retrieve the update request from db
             const queryResult = await this.updateRequestRepository.GetPendingUpdateRequestsByModelId(modelId);
 
-            return res.status(200).json(queryResult);
+            SuccessFactory.createSuccess(SuccessTypes.Ok, queryResult.length === 0 ? `the model with id ${modelId} has no update requests in pending`: '', queryResult).send(res);
         }
         catch(err){
             next(err);
@@ -124,7 +118,7 @@ export class UpdateRequestController {
                 updateRequests.push(...await this.updateRequestRepository.getUpdateRequestsByModelId(grid.id, UpdateStatus.PENDING));
             }
 
-            return res.status(200).json(updateRequests);
+            SuccessFactory.createSuccess(SuccessTypes.Ok, updateRequests.length === 0 ? `current user has no update requests in pending` : '', updateRequests).send(res);
         }
         catch(err){
             next(err);

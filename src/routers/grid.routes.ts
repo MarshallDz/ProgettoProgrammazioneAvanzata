@@ -16,9 +16,9 @@ const gridController = new GridController(userRepository, gridRepository, update
 router.post('', gridController.createGrid);
  
 // Update a grid
-router.patch('/:id', checkGridExists(gridRepository), gridController.updateGrid);
+router.patch('/:modelId', checkGridExists(gridRepository), gridController.updateGrid);
 
 // Run a model
-router.post("/:id/run", checkGridExists(gridRepository), gridController.runGrid);
+router.post("/:modelId/run", checkGridExists(gridRepository), gridController.runGrid);
 
 export default router;

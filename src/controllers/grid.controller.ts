@@ -11,6 +11,7 @@ import UpdateRequest from '../models/UpdateRequest';
 import { UpdateStatus } from '../types/updateStatus';
 import sequelize from '../config/database';
 import { Transaction } from 'sequelize';
+import { SuccessFactory, SuccessTypes } from '../utils/successFactory';
 
 const COST_PER_CELL_CREATION = 0.025;
 const COST_PER_CELL_UPDATE = 0.3;
@@ -70,9 +71,8 @@ export class GridController {
                 grid.gridData = gridDataToSave;
                 await this.gridRepository.createGrid(grid, transaction);
                 await this.userRepository.updateCredit(userId, user.tokenCredit - totalCost, transaction);
+                SuccessFactory.createSuccess(SuccessTypes.Created, `Grid successfully created`, grid).send(res);
             });
-
-            res.status(201).json({ message: "Grid data is valid.", data: result.data });
         } catch (error) {
             next(error);
         }
@@ -80,6 +80,7 @@ export class GridController {
 
     updateGrid = async (req: Request, res: Response, next: NextFunction) => {
         try {
+            let updateRequest: UpdateRequest = new UpdateRequest();
             const result = await gridUpdateSchema.safeParseAsync(req.body);
             if (!result.success) {
                 const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
@@ -88,7 +89,7 @@ export class GridController {
             const { matrix } = result.data;
 
             // Get grid_id of the grid to update
-            const id = req.params.id as string;
+            const id = req.params.modelId as string;
 
             const user = req.user;
             const isChangeApplied = await sequelize.transaction(async (transaction: Transaction) => {
@@ -103,10 +104,11 @@ export class GridController {
                     throw ErrorFactory.createError(ErrorTypes.InsufficientCreditError, 'Insufficient credit');
                 }
 
+                // If the user is the owner, changes are applied directly
                 if (gridDb.ownerId === user.id) {
                     await this.gridRepository.updateGrid(gridDb.id, matrix, transaction);
-                } else {
-                    const updateRequest = new UpdateRequest({
+                } else { // Create the update request that the owner will accept/reject
+                    updateRequest = new UpdateRequest({
                         modelId: gridDb.id,
                         userId: user.id,
                         status: UpdateStatus.PENDING,
@@ -118,7 +120,10 @@ export class GridController {
                 await this.userRepository.updateCredit(user.id, userDb.tokenCredit - totalCost, transaction);
                 return gridDb.ownerId === user.id;
             });
-            isChangeApplied ? res.status(201).json({ message: "Changes applied correctly.", data: result.data }) : res.status(201).json({ message: "Update request created.", data: result.data });
+            
+            isChangeApplied ? 
+                SuccessFactory.createSuccess(SuccessTypes.Updated, `Changes successfully applied`, matrix).send(res) :
+                SuccessFactory.createSuccess(SuccessTypes.Created, `Update request created.`, updateRequest).send(res);
         }
         catch (err) {
             next(err);
@@ -127,7 +132,7 @@ export class GridController {
 
     runGrid = async (req: Request, res: Response, next: NextFunction) => {
         try{
-            const gridId = req.params["id"] as string;
+            const gridId = req.params["modelId"] as string;
             const result = await gridExecutionSchema.safeParseAsync(req.body);
             if (!result.success) {
                 const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
@@ -145,8 +150,22 @@ export class GridController {
                     matrix: grid?.gridData
                 }
             });
+            const t0 = performance.now();
+
             let myPathway = aStarInstance.findPath(start, goal);
-            res.status(201).json(myPathway);
+
+            const tf = performance.now();
+
+            // Time spent for execution
+            const executionTime = tf - t0; 
+            const costOfExecution = myPathway.length;
+
+            const executionResult = {
+                path: myPathway,
+                totalCost: costOfExecution
+            }
+            
+            SuccessFactory.createSuccess(SuccessTypes.Ok, `Run completed successfully`, executionResult).send(res);
         }
         catch(err){
             next(err);

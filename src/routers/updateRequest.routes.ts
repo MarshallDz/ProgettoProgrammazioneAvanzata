@@ -12,10 +12,10 @@ const gridRepository = new GridRepository();
 const updateRequestController = new UpdateRequestController(updateRequestRepository, gridRepository);
 
 // Get the list of update requests with status accepted/rejected relating to a specific grid id, eventually filtered by date 
-router.get('/:modelId/updates', checkGridExists, updateRequestController.getRequestsByModelId)
+router.get('/:modelId/updates', checkGridExists(gridRepository), updateRequestController.getRequestsByModelId)
 
 // Get the list of update requests with status pending relating to a specific grid id
-router.get('/:modelId/status', checkGridExists, updateRequestController.getPendingRequestsByModelId)
+router.get('/:modelId/status', checkGridExists(gridRepository), updateRequestController.getPendingRequestsByModelId)
 
 // Get the list of update requests with status pending relating to the current user id
 router.get('/pending', updateRequestController.getPendingRequests)
@@ -24,6 +24,8 @@ router.get('/pending', updateRequestController.getPendingRequests)
 router.patch('/batch', updateRequestController.updateRequestBatch)
 
 // Accept or reject a specific update request
-router.patch("/:id", checkUpdateRequestExists, updateRequestController.updateRequest)
+router.patch("/:modelId", checkUpdateRequestExists(updateRequestRepository), updateRequestController.updateRequest)
+
+//router.get("/:id", checkUpdateRequestExists, updateRequestController.updateRequest)
 
 export default router;
