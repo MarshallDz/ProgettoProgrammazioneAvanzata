@@ -1,7 +1,7 @@
 import User from "../models/User";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { registerSchema, loginSchema } from "../validation/user.validation";
+import { authSchema } from "../validation/user.validation";
 import { Request, Response, NextFunction } from "express";
 import { ErrorFactory, ErrorTypes } from "../utils/errorFactory";
 import { z } from "zod";
@@ -15,7 +15,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
   try {
     // Validate the request body
-    var result = await registerSchema.safeParseAsync(req.body);
+    var result = await authSchema.safeParseAsync(req.body);
     if (!result.success) {
       const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
       return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
@@ -52,7 +52,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
   try {
     // Validate the request body
-    await loginSchema.parseAsync(req.body);
+    await authSchema.parseAsync(req.body);
 
     // Find the user by username
     const user = await User.findOne({ where: { username } });

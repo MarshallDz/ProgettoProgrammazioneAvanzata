@@ -1,5 +1,9 @@
+import { Transaction } from "sequelize";
+import { IUserRepository } from "../interfaces/repositories/IUserRepository";
 import { ErrorFactory } from "./errorFactory";
 import { ErrorTypes } from "./errorFactory";
+import User from "../models/User";
+
 
 export function countChangedCells(matrixA: number[][], matrixB: number[][]): number {
     let changeCount = 0;
@@ -19,4 +23,16 @@ export function countChangedCells(matrixA: number[][], matrixB: number[][]): num
     }
 
     return changeCount;
+}
+
+// 
+export async function checkSufficientUserCredit(userRepository: IUserRepository, userId: string, requiredCredit: number, transaction?: Transaction): Promise<User>{
+    const user = await userRepository.getUserById(userId, transaction);
+    if (!user) {
+        throw ErrorFactory.createError(ErrorTypes.NotFound, "User not found");
+    }
+    if (user.tokenCredit < requiredCredit) {
+        throw ErrorFactory.createError(ErrorTypes.InsufficientCreditError, 'Insufficient credit');
+    }
+    return user;
 }

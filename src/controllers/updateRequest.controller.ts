@@ -19,7 +19,7 @@ export class UpdateRequestController {
             }
             const { toApprove } = result.data;
             // Get update_request_id of the grid to update
-            const id = req.params.modelId as string;
+            const id = req.params.id as string;
             
             const currentUserId = req.user.id;
             const isOwner = await this.checkOwner(id, currentUserId);

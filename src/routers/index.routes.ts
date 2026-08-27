@@ -9,6 +9,7 @@ import gridRoutes from './grid.routes';
 import adminRoutes from './admin.routes';
 import updateRequestRoutes from './updateRequest.routes';
 import { UserRepository } from '../repositories/UserRepository';
+import { SuccessFactory, SuccessTypes } from '../utils/successFactory';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ const userRepository = new UserRepository();
 
 // Health route
 router.get('/health', (_req: Request, res: Response) => {
-    res.status(200).json({ status: 'UP' });
+    SuccessFactory.createSuccess(SuccessTypes.Ok, 'Server Up and Running', {status: 'UP'}).send(res);
 });
 
 // Login and register routes

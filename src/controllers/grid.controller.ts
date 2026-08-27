@@ -6,7 +6,7 @@ import { IUserRepository } from '../interfaces/repositories/IUserRepository';
 import { IGridRepository } from '../interfaces/repositories/IGridRepository';
 import { IUpdateRequestRepository } from "../interfaces/repositories/IUpdateRequestRepository";
 import Grid from "../models/Grid";
-import { countChangedCells } from '../utils/grid.helper';
+import { checkSufficientUserCredit, countChangedCells } from '../utils/grid.helper';
 import UpdateRequest from '../models/UpdateRequest';
 import { UpdateStatus } from '../types/updateStatus';
 import sequelize from '../config/database';
@@ -56,15 +56,11 @@ export class GridController {
 
             await sequelize.transaction(async (transaction: Transaction) => {
                 const totalCost = aStarGrid.numberOfFields * COST_PER_CELL_CREATION;
-                const user = await this.userRepository.getUserById(userId, transaction);
-                if (!user) throw ErrorFactory.createError(ErrorTypes.NotFound, "User not found");
-                if (user.tokenCredit < totalCost) {
-                    throw ErrorFactory.createError(ErrorTypes.InsufficientCreditError, 'Insufficient credit');
-                }
+                const user = await checkSufficientUserCredit(this.userRepository, userId, totalCost, transaction);
 
                 const grid = new Grid();
                 grid.name = name;
-                grid.ownerId = user.id;
+                grid.ownerId = userId;
                 grid.width = aStarGrid.width;
                 grid.height = aStarGrid.height;
                 grid.currentVersion = 1;
@@ -98,11 +94,7 @@ export class GridController {
 
                 const cellsUpdated = countChangedCells(gridDb.gridData, matrix);
                 const totalCost = cellsUpdated * COST_PER_CELL_UPDATE;
-                const userDb = await this.userRepository.getUserById(user.id, transaction);
-                if (!userDb) throw ErrorFactory.createError(ErrorTypes.NotFound, "User not found");
-                if (userDb.tokenCredit < totalCost) {
-                    throw ErrorFactory.createError(ErrorTypes.InsufficientCreditError, 'Insufficient credit');
-                }
+                const userDb = await checkSufficientUserCredit(this.userRepository, user.id, totalCost, transaction);
 
                 // If the user is the owner, changes are applied directly
                 if (gridDb.ownerId === user.id) {
@@ -133,6 +125,7 @@ export class GridController {
     runGrid = async (req: Request, res: Response, next: NextFunction) => {
         try{
             const gridId = req.params["modelId"] as string;
+            const userId = req.user.id;
             const result = await gridExecutionSchema.safeParseAsync(req.body);
             if (!result.success) {
                 const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
@@ -140,6 +133,7 @@ export class GridController {
             }
             
             const {start, goal} = result.data
+
             // Fetch grid from db
             const grid = await this.gridRepository.getGridById(gridId);
             
@@ -162,9 +156,17 @@ export class GridController {
 
             const executionResult = {
                 path: myPathway,
-                totalCost: costOfExecution
+                totalCost: costOfExecution,
+                time: `${executionTime.toFixed(3)} ms`
             }
             
+            // Update the user token credit
+            const totalCost = aStarInstance.getGrid().numberOfFields * COST_PER_CELL_CREATION;
+
+            // Fetch user from db
+            const user = await checkSufficientUserCredit(this.userRepository, userId, totalCost);
+
+            await this.userRepository.updateCredit(userId, user!.tokenCredit - totalCost);
             SuccessFactory.createSuccess(SuccessTypes.Ok, `Run completed successfully`, executionResult).send(res);
         }
         catch(err){
