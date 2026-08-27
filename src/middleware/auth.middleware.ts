@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import dotenv from 'dotenv';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import { Role } from "../types/roles";
 
-import * as fs from 'fs';
+dotenv.config();
 
-const public_key = fs.readFileSync('jwtRS256.key.pub', 'utf-8');
+const public_key = process.env.JWT_PUBLIC_KEY!.replace(/\\n/g, '\n')
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];

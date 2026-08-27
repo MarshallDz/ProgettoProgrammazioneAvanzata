@@ -1,11 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import { IUserRepository } from '../interfaces/repositories/IUserRepository';
-import { entityExistsMiddleware } from './entityExists.middleware';
 
+// Middleware to check if user exist before processing the request
 export function checkUserExists(userRepo: IUserRepository) {
-    return entityExistsMiddleware('id', (id) => userRepo.getUserById(id), 'User');
-}
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const id = req.params["id"] as string;
+        const user = await userRepo.getUserById(id);
+        if (!user) {
+            throw ErrorFactory.createError(ErrorTypes.NotFound, "User not found");
+        }
+        next();
+    }
+};
 
 // Middleware to check if user have a credit amount over zero
 export function checkUserCredit(userRepo: IUserRepository) {

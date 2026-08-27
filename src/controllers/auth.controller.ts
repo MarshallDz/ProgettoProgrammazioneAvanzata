@@ -5,10 +5,12 @@ import { authSchema } from "../validation/user.validation";
 import { Request, Response, NextFunction } from "express";
 import { ErrorFactory, ErrorTypes } from "../utils/errorFactory";
 import { z } from "zod";
-import * as fs from 'fs';
 import { SuccessFactory, SuccessTypes } from "../utils/successFactory";
+import dotenv from "dotenv";
 
-const private_key = fs.readFileSync('jwtRS256.key', 'utf-8');
+dotenv.config();
+
+const private_key = process.env.JWT_PRIVATE_KEY!.replace(/\\n/g, '\n');
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;

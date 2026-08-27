@@ -27,7 +27,7 @@ export const gridUpdateSchema = z.object({
 })
 
 // Single point of the grid (es. start position)
-const positionSchema = z.object({
+export const positionSchema = z.object({
     x: z.number({ message: "x must be a number" }),
     y: z.number({ message: "y must be a number" })
 });

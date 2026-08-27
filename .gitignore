@@ -10,3 +10,6 @@ dist/
 # File Mac OS
 .DS_Store
 
+# RS256 key
+*.pem
+private.pem

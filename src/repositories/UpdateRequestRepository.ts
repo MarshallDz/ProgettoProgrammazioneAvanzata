@@ -15,49 +15,49 @@ export class UpdateRequestRepository implements IUpdateRequestRepository{
         }, { transaction });
     }
 
-    async updateRequest(toUpdate: boolean, requestId: string): Promise<void> {
-        if(toUpdate){
-            UpdateRequest.update({
-                status: toUpdate ? UpdateStatus.ACCEPTED : UpdateStatus.REJECTED
+    async updateRequest(toUpdate: boolean, requestId: string, transaction?: Transaction): Promise<void> {
+        UpdateRequest.update({
+            status: toUpdate ? UpdateStatus.ACCEPTED : UpdateStatus.REJECTED
+        },
+        {
+            where: {
+                id: requestId
             },
-            {
-                where: {
-                    id: requestId
-                }
-            }
-        )
-      }
+            transaction,
+        })      
     }
 
     async getUpdateRequestById(requestId: string): Promise<UpdateRequest | null> {
         return await UpdateRequest.findByPk(requestId);
     }
 
-    async getUpdateRequestsByModelId(modelId: string, status: UpdateStatus, from?: Date, to?: Date): Promise<UpdateRequest[]> {
+    async getUpdateRequestsByModelId(modelId: string, status?: UpdateStatus, from?: Date, to?: Date): Promise<UpdateRequest[]> {
         // Build the where clause
         const whereClause: any = {
-            modelId,
-            status,
+            modelId
         };
 
         // If from or to are presents in the query parameters add date filters
         if (from || to) {
-            whereClause.createdAt = {};
+            whereClause.updatedAt = {};
 
             if (from) {
                 // Op.gte = Greater than or equal (>=)
-                whereClause.createdAt[Op.gte] = from;
+                whereClause.updatedAt[Op.gte] = from;
             }
 
             if (to) {
                 // Op.lte = Less than or equal (<=)
-                whereClause.createdAt[Op.lte] = to;
+                whereClause.updatedAt[Op.lte] = to;
             }
+        }
+        if (status) {
+            whereClause.status = status;
         }
 
         const requests = await UpdateRequest.findAll({
             where: whereClause,
-            order: [['createdAt', 'DESC']], 
+            order: [['updatedAt', 'DESC']], 
         });
 
         return requests;

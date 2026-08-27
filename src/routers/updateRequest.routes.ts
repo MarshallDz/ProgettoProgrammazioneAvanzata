@@ -26,6 +26,6 @@ router.patch('/batch', updateRequestController.updateRequestBatch)
 // Accept or reject a specific update request
 router.patch("/:id", checkUpdateRequestExists(updateRequestRepository), updateRequestController.updateRequest)
 
-//router.get("/:id", checkUpdateRequestExists, updateRequestController.updateRequest)
+router.patch("/:id/updateCells", checkUpdateRequestExists(updateRequestRepository), updateRequestController.updateRequestByCells)
 
 export default router;

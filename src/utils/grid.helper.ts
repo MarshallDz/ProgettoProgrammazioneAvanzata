@@ -3,6 +3,8 @@ import { IUserRepository } from "../interfaces/repositories/IUserRepository";
 import { ErrorFactory } from "./errorFactory";
 import { ErrorTypes } from "./errorFactory";
 import User from "../models/User";
+import { IUpdateRequestRepository } from "../interfaces/repositories/IUpdateRequestRepository";
+import { IGridRepository } from "../interfaces/repositories/IGridRepository";
 
 
 export function countChangedCells(matrixA: number[][], matrixB: number[][]): number {
@@ -35,4 +37,19 @@ export async function checkSufficientUserCredit(userRepository: IUserRepository,
         throw ErrorFactory.createError(ErrorTypes.InsufficientCreditError, 'Insufficient credit');
     }
     return user;
+}
+
+export async function checkOwner(requestId: string, currentUserId: string, updateRequestRepository: IUpdateRequestRepository, gridRepository: IGridRepository): Promise<boolean> {
+    // Get the update request from db
+    const updateRequest = await updateRequestRepository.getUpdateRequestById(requestId);
+    if(!updateRequest){
+        throw ErrorFactory.createError(ErrorTypes.NotFound, 'Update request not found');
+    }
+    // Get the grid that is gonna be updated
+    const gridId = updateRequest?.modelId;
+    const grid = await gridRepository.getGridById(gridId);
+
+    //check if the current user is the owner that can accept/reject the request
+    const ownerId = grid?.ownerId;
+    return currentUserId === ownerId;
 }
