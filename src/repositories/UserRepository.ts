@@ -3,10 +3,11 @@ import User from "../models/User";
 import { Transaction } from "sequelize";
 
 export class UserRepository implements IUserRepository{
-    /*
-    async createUser(user: User): Promise<User> {        
+    
+    async createUser(username: string, hashedPassword: string): Promise<User> {  
+        return await User.create({ username: username, password: hashedPassword });      
     }
-    */
+    
     async getUserById(id: string, transaction?: Transaction): Promise<User | null> {
         return await User.findOne({
             where: {

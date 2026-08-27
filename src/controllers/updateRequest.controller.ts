@@ -13,6 +13,18 @@ import { checkOwner } from '../utils/grid.helper';
 export class UpdateRequestController {
     constructor(private updateRequestRepository: IUpdateRequestRepository, private gridRepository: IGridRepository) {}
 
+    /**
+     * Approves or rejects a complete update request.
+     *
+     * Verifies that the authenticated user owns the associated grid and updates
+     * the request status according to `toApprove`.
+     *
+     * @param req - Request with `req.params.id`, `req.body.toApprove`, and
+     * `req.user.id`.
+     * @param res - Response with status 200 after the status update.
+     * @param next - Express middleware callback for forwarding validation or
+     * authorization errors.
+     */
     updateRequest = async(req: Request, res: Response, next: NextFunction) => {
         try{
             const result = await updateRequestSchema.safeParseAsync(req.body);
@@ -40,6 +52,19 @@ export class UpdateRequestController {
         }        
     }
 
+    /**
+     * Approves or rejects selected cells from an update request.
+     *
+     * When approving, copies the selected cells into the grid. When rejecting,
+     * restores those cells to their previous values. The grid and request are
+     * updated in the same transaction.
+     *
+     * @param req - Request with `req.params.id`, `req.body.cellsToUpdate`,
+     * `req.body.toApprove`, and `req.user.id`.
+     * @param res - Response with status 200 after updating the grid and request.
+     * @param next - Express middleware callback for forwarding validation or
+     * authorization errors.
+     */
     updateRequestByCells = async(req: Request, res: Response, next: NextFunction) => {
         try{
             // Get update_request_id of the grid to update
@@ -122,6 +147,17 @@ export class UpdateRequestController {
         }        
     }
 
+    /**
+     * Approves or rejects multiple update requests in one call.
+     *
+     * Updates only requests belonging to grids owned by the user and returns
+     * valid and unauthorized ids separately.
+     *
+     * @param req - Request with `req.body.ids` and `req.body.toApprove`.
+     * @param res - Response with status 200 containing updated and rejected ids.
+     * @param next - Express middleware callback for forwarding validation or
+     * database errors.
+     */
     updateRequestBatch = async(req: Request, res: Response, next: NextFunction) => {
         try{
             const result = await updateRequestBatchSchema.safeParseAsync(req.body);
@@ -159,6 +195,17 @@ export class UpdateRequestController {
         }        
     }
 
+    /**
+     * Returns the update requests associated with a grid.
+     *
+     * Supports optional filters for status, start date, and end date.
+     *
+     * @param req - Request with `req.params.modelId` and optional query
+     * parameters `from`, `to`, and `status`.
+     * @param res - Response with status 200 containing the ordered requests.
+     * @param next - Express middleware callback for forwarding validation or
+     * database errors.
+     */
     getRequestsByModelId = async(req: Request, res: Response, next: NextFunction) => {
         try{
             const result = await getRequestsByModelIdSchema.safeParseAsync(req.query);
@@ -186,6 +233,13 @@ export class UpdateRequestController {
         }
     }
 
+    /**
+     * Returns the pending requests associated with a grid.
+     *
+     * @param req - Request with `req.params.modelId`.
+     * @param res - Response with status 200 containing pending requests.
+     * @param next - Express middleware callback for forwarding errors.
+     */
     getPendingRequestsByModelId = async(req: Request, res: Response, next: NextFunction) => {
         try{
             const modelId = req.params["modelId"] as string;
@@ -200,6 +254,15 @@ export class UpdateRequestController {
         }
     }
 
+    /**
+     * Returns all pending requests for the authenticated user's grids.
+     *
+     * Loads the grids owned by the user and collects their pending requests.
+     *
+     * @param req - Request with the user id available in `req.user.id`.
+     * @param res - Response with status 200 containing pending requests.
+     * @param next - Express middleware callback for forwarding errors.
+     */
     getPendingRequests = async(req: Request, res: Response, next: NextFunction) => {
         try{
             const id = req.user.id;

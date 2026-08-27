@@ -3,8 +3,17 @@ import User from '../models/User';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import { adminSchema } from '../validation/user.validation';
 import { SuccessFactory, SuccessTypes } from '../utils/successFactory';
-
-// Controller to update user credits (admin only)
+/**
+ * Updates a user's token credit.
+ *
+ * The route requires authentication, administrator role, and the existence of
+ * the user identified in the URL. The new credit value is validated and saved
+ * directly on the User model.
+ *
+ * @param req - Express request with `req.params.id` and `req.body.newCredit`.
+ * @param res - Express response containing the updated user.
+ * @param next - Express middleware callback for forwarding errors.
+ */
 export const updateUserCredits = async (req: Request, res: Response, next: NextFunction) => {
   const id = req.params["id"] as string;
   var result = await adminSchema.safeParseAsync(req.body);

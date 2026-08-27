@@ -16,7 +16,7 @@ export class UpdateRequestRepository implements IUpdateRequestRepository{
     }
 
     async updateRequest(toUpdate: boolean, requestId: string, transaction?: Transaction): Promise<void> {
-        UpdateRequest.update({
+        await UpdateRequest.update({
             status: toUpdate ? UpdateStatus.ACCEPTED : UpdateStatus.REJECTED
         },
         {

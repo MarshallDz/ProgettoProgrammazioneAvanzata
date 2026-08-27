@@ -13,3 +13,5 @@ dist/
 # RS256 key
 *.pem
 private.pem
+
+docs/

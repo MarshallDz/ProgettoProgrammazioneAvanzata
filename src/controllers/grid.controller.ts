@@ -19,6 +19,19 @@ const COST_PER_CELL_UPDATE = 0.3;
 export class GridController {
     constructor(private userRepository: IUserRepository, private gridRepository: IGridRepository, private updateRequestRepository: IUpdateRequestRepository) { }
 
+    /**
+     * Creates a new grid for the authenticated user.
+     *
+     * Accepts a matrix or width and height, builds the grid using AStarFinder,
+     * calculates the cost based on the number of cells, and saves the grid and
+     * updated credit in the same transaction.
+     *
+     * @param req - Request with `req.body.name` and either `matrix` or `width`
+     * and `height`; the user id is read from `req.user.id`.
+     * @param res - Response with status 201 and the newly created grid.
+     * @param next - Express middleware callback for forwarding validation,
+     * insufficient-credit, or database errors.
+     */
     createGrid = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const result = await gridSchema.safeParseAsync(req.body);
@@ -74,6 +87,19 @@ export class GridController {
         }
     }
 
+    /**
+     * Updates an existing grid or creates an update request.
+     *
+     * If the authenticated user is the owner, the matrix is applied directly.
+     * Otherwise, a pending request is created for the owner. In both cases,
+     * the cost depends on the changed cells.
+     *
+     * @param req - Request with `req.params.modelId`, `req.body.matrix`, and
+     * `req.user.id`.
+     * @param res - Response with status 200 for a direct update or 201 for a
+     * created update request.
+     * @param next - Express middleware callback for forwarding errors.
+     */
     updateGrid = async (req: Request, res: Response, next: NextFunction) => {
         try {
             let updateRequest: UpdateRequest = new UpdateRequest();
@@ -122,6 +148,18 @@ export class GridController {
         }
     }
 
+    /**
+     * Runs the A* algorithm on the requested grid.
+     *
+     * Loads the grid, calculates the path between the start and goal positions,
+     * measures the execution time, and charges the user.
+     *
+     * @param req - Request with `req.params.modelId`, `req.body.start`,
+     * `req.body.goal`, and `req.user.id`.
+     * @param res - Response with status 200 containing the path, total cost, and
+     * execution time.
+     * @param next - Express middleware callback for forwarding errors.
+     */
     runGrid = async (req: Request, res: Response, next: NextFunction) => {
         try{
             const gridId = req.params["modelId"] as string;

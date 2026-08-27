@@ -3,6 +3,14 @@ import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 
 type FindEntityById = (id: string) => Promise<unknown | null>;
 
+/**
+ * Creates middleware that verifies whether an entity exists by an URL parameter.
+ *
+ * @param paramName - Name of the request path parameter containing the id.
+ * @param findById - Repository lookup function used to find the entity.
+ * @param entityName - Entity name used in the not-found error message.
+ * @returns Middleware that calls `next` when the entity exists.
+ */
 export function entityExistsMiddleware(
     paramName: string,
     findById: FindEntityById,
