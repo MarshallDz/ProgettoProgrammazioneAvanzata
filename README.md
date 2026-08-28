@@ -1,5 +1,29 @@
-# ProgettoProgrammazioneAvanzata
+# Progetto Programmazione Avanzata
 Repository per progetto del corso Programmazione Avanzata tenuto nell'anno accademico 25/26 all'Università Politecnica delle Marche.. 
+
+## Indice
+
+- [Descrizione del progetto](#descrizione-del-progetto)
+- [Tecnologie utilizzate](#tecnologie-utilizzate)
+- [Endpoint](#endpoint)
+- [Progettazione](#progettazione)
+  - [Use Cases](#use-cases)
+  - [Diagrammi di sequenza](#diagrammi-di-sequenza)
+    - [Create grid](#create-grid)
+    - [Update grid](#update-grid)
+    - [Run grid](#run-grid)
+    - [Note](#note)
+- [Pattern utilizzati](#pattern-utilizzati)
+  - [MVC / Layered Architecture](#mvc--layered-architecture)
+  - [Repository](#repository)
+  - [Factory Method](#factory-method)
+  - [Chain of responsability](#chain-of-responsability)
+- [Avviare il progetto con Docker](#avviare-il-progetto-con-docker)
+- [Test con Jest](#test-con-jest)
+  - [Test presenti](#test-presenti)
+  - [Dipendenze per i test](#dipendenze-per-i-test)
+  - [Esecuzione](#esecuzione)
+- [Postman](#postman)
 
 
 # Descrizione del progetto:
@@ -31,6 +55,28 @@ Si realizzi un sistema che consenta di gestire la creazione e valutazione di mod
 - Sequelize 
 - Postgres
 - Docker
+
+## Endpoint
+
+Il prefisso predefinito per tutte le route è `/api/v1` e può essere modificato
+tramite la variabile d'ambiente `API_PREFIX`. Le route protette richiedono un
+token JWT nell'header `Authorization: Bearer <token>`.
+
+| Metodo | Endpoint | Autorizzazione | Descrizione |
+|---|---|---|---|
+| `GET` | `/api/v1/health` | Nessuna | Verifica che il server sia attivo. |
+| `POST` | `/api/v1/auth/register` | Nessuna | Registra un nuovo utente. |
+| `POST` | `/api/v1/auth/login` | Nessuna | Autentica un utente e restituisce il token JWT. |
+| `POST` | `/api/v1/grids` | JWT + credito positivo | Crea un nuovo modello di griglia a partire da una matrice o dalle sue dimensioni, addebitando il costo previsto. |
+| `PATCH` | `/api/v1/grids/:modelId` | JWT + credito positivo | Aggiorna una griglia; il proprietario applica la modifica direttamente, mentre gli altri utenti creano una richiesta di aggiornamento. |
+| `POST` | `/api/v1/grids/:modelId/run` | JWT + credito positivo | Esegue il modello tra un punto di partenza e uno di arrivo e restituisce percorso, costo del percorso e tempo di esecuzione. |
+| `GET` | `/api/v1/updateRequests/:modelId/updates` | JWT | Restituisce le richieste di aggiornamento accettate o rifiutate di una griglia, con filtri temporali opzionali. |
+| `GET` | `/api/v1/updateRequests/:modelId/status` | JWT | Verifica se una griglia ha richieste di aggiornamento in stato `pending`. |
+| `GET` | `/api/v1/updateRequests/pending` | JWT | Restituisce le richieste `pending` relative ai modelli creati dall'utente autenticato. |
+| `PATCH` | `/api/v1/updateRequests/:id` | JWT | Approva o rifiuta una richiesta di aggiornamento specifica. |
+| `PATCH` | `/api/v1/updateRequests/:id/updateCells` | JWT | Approva o rifiuta l'aggiornamento di una o più celle di una richiesta specifica. |
+| `PATCH` | `/api/v1/updateRequests/batch` | JWT | Approva o rifiuta in modalità bulk più richieste di aggiornamento. |
+| `PATCH` | `/api/v1/users/:id/credits` | JWT + ruolo admin | Aggiorna il credito dell'utente indicato; l'operazione è riservata agli amministratori. |
 
 # Progettazione
 
@@ -241,8 +287,7 @@ richiesta. La risposta viene inviata dal controller dopo il commit.
 
 ## Pattern utilizzati
 
-### MVC
-MVC / Layered Architecture
+### MVC / Layered Architecture
 Il progetto segue una struttura a livelli simile a MVC:
 
 - Routes: definiscono gli endpoint;
@@ -304,10 +349,65 @@ router.use(
   gridRoutes
 );
 ```
-** Nota: ** alcuni middleware sono stati creati con il pattern Factory.
+**Nota:** alcuni middleware sono stati creati con il pattern Factory.
 
 # Avviare il progetto con Docker
 
 # Test con jest
+
+Il progetto utilizza **Jest** per eseguire test unitari sui middleware Express.
+I test non richiedono l'avvio del server, Docker o una connessione a PostgreSQL:
+le dipendenze dei middleware vengono sostituite con repository mockati tramite
+`jest.fn()`.
+
+## Test presenti
+
+- `test/grid.test.ts`: verifica il middleware `checkGridExists`. Controlla che
+  l'ID del modello venga letto dai parametri della richiesta, che il repository
+  venga chiamato con l'ID corretto e che `next()` venga invocato quando la griglia
+  esiste.
+- `test/user.test.ts`: verifica il middleware `checkUserCredit`. Controlla che
+  venga cercato l'utente autenticato tramite `req.user.id`, che il credito venga
+  letto dal repository e che `next()` venga invocato quando il credito è positivo.
+
+Entrambi i test usano i tipi `Request`, `Response` e `NextFunction` di Express e
+le interfacce `IGridRepository` e `IUserRepository` per costruire mock compatibili
+con le dipendenze reali. Le chiamate asincrone dei repository sono simulate con
+`mockResolvedValue`.
+
+### Dipendenze per i test
+
+Le principali dipendenze coinvolte sono:
+
+- `jest`: framework di test e API per le asserzioni e i mock;
+- `@types/jest`: definizioni TypeScript per `describe`, `it`, `expect` e `jest`;
+- `babel-jest`: integrazione tra Jest e Babel;
+- `@babel/core`, `@babel/preset-env` e `@babel/preset-typescript`: trasformano i
+  file TypeScript in codice eseguibile da Jest;
+- `@types/express`: definizioni TypeScript utilizzate nei test per i tipi delle
+  richieste, risposte e funzioni `next`.
+
+La configurazione si trova in `jest.config.cjs`: l'ambiente è `node`, vengono
+cercati i file `*.test.ts` nella cartella `test` e ogni file TypeScript viene
+trasformato da `babel-jest`.
+
+### Esecuzione
+
+Eseguire tutti i test:
+
+```bash
+npm test
+```
+
+Eseguire un singolo file di test:
+
+```bash
+npx jest test/grid.test.ts
+npx jest test/user.test.ts
+```
+
+I test possono essere eseguiti indipendentemente dal database perché verificano
+solo il comportamento dei middleware e simulano le risposte dei repository.
+
 
 # Postman

@@ -6,6 +6,7 @@ export class GridRepository implements IGridRepository {
 
     async createGrid(gridData: Grid, transaction?: Transaction): Promise<Grid> {
         return await Grid.create({
+            id: gridData.id,
             name: gridData.name,
             ownerId: gridData.ownerId,
             width: gridData.width,

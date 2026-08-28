@@ -1,17 +1,26 @@
-# Ignore the .env file, node_modules, and dist directories
+# Environment and dependencies
 .env
+.env.*
+!.env.example
 node_modules/
 dist/
+coverage/
+.npm/
+.cache/
+*.log
 
-# Ignore git files and directories
+# Version control and editor files
 .git/
 .gitignore
+.vscode/
+.DS_Store
 
-# Ignore Docker-related files
+# Docker files are used by Docker itself, but are not needed inside the image
 Dockerfile
-docker-compose.yml
+docker-compose*.yml
+docker-compose*.yaml
 .dockerignore
 
-# Ignore readme files and markdown files
-readme.md
+# Documentation and local-only tests
 *.md
+test/

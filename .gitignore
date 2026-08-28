@@ -11,7 +11,5 @@ dist/
 .DS_Store
 
 # RS256 key
-*.pem
-private.pem
-
-docs/
+jwtRS256.key
+jwtRS256.key.pub
