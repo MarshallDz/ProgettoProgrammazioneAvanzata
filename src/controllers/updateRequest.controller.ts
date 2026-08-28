@@ -43,8 +43,17 @@ export class UpdateRequestController {
                 return next(ErrorFactory.createError(ErrorTypes.Unauthorized, 'Unauthorized to accept/reject the request. Not the owner.'));
             }
 
-            // Approve or reject the update request by id
-            await this.updateRequestRepository.updateRequest(toApprove, id);
+            // Fetch the update request from db
+            const updateRequest = await this.updateRequestRepository.getUpdateRequestById(id);
+
+            // If the update request is approved, the grid is updated, otherwise the update only the status of update request
+            if(toApprove){
+                await sequelize.transaction(async (transaction: Transaction) => {                
+                    await this.gridRepository.updateGrid(updateRequest!.modelId, updateRequest!.gridData, transaction);
+                    await this.updateRequestRepository.updateRequest(toApprove, id, transaction);
+                });
+            }
+            else await this.updateRequestRepository.updateRequest(toApprove, id);
             SuccessFactory.createSuccess(SuccessTypes.Updated, `Richiesta ${id} aggiornata con successo`).send(res);
         }
         catch(err){
