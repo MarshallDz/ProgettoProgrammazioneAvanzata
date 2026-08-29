@@ -1,0 +1,764 @@
+{
+  "info": {
+    "_postman_id": "2cd3b87b-1546-4d42-bd4d-f65412df17e4",
+    "name": "ProgettoProgrammazioneAvanzata",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54236652",
+    "_collection_link": "https://go.postman.co/collection/54236652-2cd3b87b-1546-4d42-bd4d-f65412df17e4?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Login admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set(\"JWT_TOKEN_ADMIN\", pm.response.json().data);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "token",
+            "value": "{{JWT_TOKEN}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\" : \"admin\",\n    \"password\": \"adminpassword\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/auth/login",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login user x",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set(\"JWT_TOKEN_USER\", pm.response.json().data);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "token",
+            "value": "{{JWT_TOKEN}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{saved_username}}\",\n  \"password\": \"{{saved_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/auth/login",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login user y",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set(\"JWT_TOKEN_USER\", pm.response.json().data);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "token",
+            "value": "{{JWT_TOKEN}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"userpassword1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/auth/login",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login user x 2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set(\"JWT_TOKEN_USER\", pm.response.json().data);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "token",
+            "value": "{{JWT_TOKEN}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{saved_username}}\",\n  \"password\": \"{{saved_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/auth/login",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Check health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/health",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Grid",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// 1. Genera dimensioni casuali tra 1 e 10\r\nconst rows = Math.floor(Math.random() * 10) + 1;\r\nconst cols = Math.floor(Math.random() * 10) + 1;\r\n\r\n// 2. Crea la matrice 2D con valori binari (0 o 1)\r\nlet matrix = [];\r\nfor (let i = 0; i < rows; i++) {\r\n    let row = [];\r\n    for (let j = 0; j < cols; j++) {\r\n        // Genera 0 o 1 casualmente\r\n        row.push(Math.round(Math.random()));\r\n    }\r\n    matrix.push(row);\r\n}\r\n\r\n// 3. Salva la matrice come stringa JSON nella variabile di collezione\r\npm.collectionVariables.set(\"random_matrix\", JSON.stringify(matrix));\r\n"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const jsonData = pm.response.json();\r\n\r\npm.collectionVariables.set(\"lastModelIdCreated\", jsonData.data.id);\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_USER}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"matrice_{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}\",\r\n    \"matrix\": {{random_matrix}}\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/grids",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "grids"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Legge il JSON di risposta\r\nconst jsonData = pm.response.json();\r\n\r\n// Salva l'ID in una variabile di collezione (sostituisci \"id\" con il nome reale del campo nel tuo JSON)\r\npm.collectionVariables.set(\"lastUserIdCreated\", jsonData.data.id);"
+            ]
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Genera e salva username random\r\nconst randomName = pm.variables.replaceIn(\"{{$randomFullName}}\");\r\npm.collectionVariables.set(\"saved_username\", randomName);\r\n\r\n// Genera e salva password random\r\nconst randomPass = pm.variables.replaceIn(\"{{$randomPassword}}\");\r\npm.collectionVariables.set(\"saved_password\", randomPass);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{saved_username}}\",\n  \"password\": \"{{saved_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/auth/register",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Admin update credit",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_ADMIN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"newCredit\": 10\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/users/{{lastUserIdCreated}}/credits",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "users",
+            "{{lastUserIdCreated}}",
+            "credits"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Grid",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// 1. Recupera la matrice salvata nella variabile di collezione\r\nconst matrixString = pm.collectionVariables.get(\"random_matrix\");\r\n\r\nif (!matrixString) {\r\n    console.log(\"Nessuna matrice trovata in 'random_matrix'. Esegui prima la generazione.\");\r\n} else {\r\n    // Converte la stringa JSON di nuovo in un array 2D\r\n    let matrix = JSON.parse(matrixString);\r\n    \r\n    const rows = matrix.length;\r\n    const cols = matrix[0].length;\r\n    \r\n    // 2. Modifica i valori delle celle \r\n    for (let i = 0; i < rows; i++) {\r\n        for (let j = 0; j < cols; j++) {          \r\n            // Rigenera un valore binario casuale per ogni cella\r\n            matrix[i][j] = Math.round(Math.random());\r\n        }\r\n    }\r\n    \r\n    // 3. Salva nuovamente la matrice aggiornata nella variabile di collezione\r\n    pm.collectionVariables.set(\"new_random_matrix\", JSON.stringify(matrix));    \r\n}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) {\r\n    const jsonData = pm.response.json();\r\n    pm.collectionVariables.set(\"lastUpdateRequestIdCreated\", jsonData.data.id);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_USER}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"matrix\": {{new_random_matrix}}\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/grids/{{lastModelIdCreated}}",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "grids",
+            "{{lastModelIdCreated}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update request",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_USER}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"toApprove\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/updateRequests/{{lastUpdateRequestIdCreated}}",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "updateRequests",
+            "{{lastUpdateRequestIdCreated}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update request Batch",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_USER}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"ids\": [\"435fb6cc-3331-4120-b5b1-394343bf5d30\", \"7a2a2632-91f7-4d2c-9c21-0ed6909efe50\"\r\n            ],\r\n    \"toApprove\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/updateRequests/batch",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "updateRequests",
+            "batch"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get update request by specific model id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_USER}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/updateRequests/{{lastModelIdCreated}}/updates?status=rejected",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "updateRequests",
+            "{{lastModelIdCreated}}",
+            "updates"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "rejected"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get pending update request by specific model id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_USER}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/updateRequests/{{lastModelIdCreated}}/status",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "updateRequests",
+            "{{lastModelIdCreated}}",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get pending update request of current user",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_USER}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/updateRequests/pending",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "updateRequests",
+            "pending"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Run a model",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// 1. Recupera la matrice dalle collection variables\r\nconst matrixString = pm.collectionVariables.get(\"random_matrix\");\r\n\r\nif (!matrixString) {\r\n    console.log(\"Nessuna matrice trovata in 'random_matrix'.\");\r\n} else {\r\n    const matrix = JSON.parse(matrixString);\r\n    const rows = matrix.length;\r\n    const cols = matrix[0].length;\r\n\r\n    // 2. Funzione per generare punti casuali validi (valore 0, o 1 a seconda delle tue regole)\r\n    function getRandomValidPoint(matrix) {\r\n        const r = matrix.length;\r\n        const c = matrix[0].length;\r\n        \r\n        let x, y;\r\n        let attempts = 0;\r\n        const maxAttempts = r * c * 2;\r\n        \r\n        // Cerca una cella che sia \"attraversabile\" (es. valore 0) \r\n        // oppure rimuovi il controllo se va bene qualsiasi coordinata casuale.\r\n        do {\r\n            x = Math.floor(Math.random() * r);\r\n            y = Math.floor(Math.random() * c);\r\n            attempts++;\r\n            // Supponiamo che il punto sia valido se la cella è 0 (libera)\r\n            if (matrix[x][y] === 0 || attempts > maxAttempts) {\r\n                break;\r\n            }\r\n        } while (true);\r\n        \r\n        return { x: x, y: y };\r\n    }\r\n\r\n    // 3. Genera start e goal\r\n    const start = getRandomValidPoint(matrix);\r\n    const goal = getRandomValidPoint(matrix);\r\n\r\n    // Salva i punti nelle collection variables per poterli riusare nelle chiamate successive\r\n    pm.collectionVariables.set(\"start_x\", start.x);\r\n    pm.collectionVariables.set(\"start_y\", start.y);\r\n    pm.collectionVariables.set(\"goal_x\", goal.x);\r\n    pm.collectionVariables.set(\"goal_y\", goal.y);\r\n\r\n    console.log(`Start generato: (${start.x}, ${start.y}) -> Valore: ${matrix[start.x][start.y]}`);\r\n    console.log(`Goal generato: (${goal.x}, ${goal.y}) -> Valore: ${matrix[goal.x][goal.y]}`);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_USER}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"start\": {\r\n        \"x\": {{start_x}},\r\n        \"y\": {{start_y}}\r\n    },\r\n    \"goal\": {\r\n        \"x\": {{goal_x}},\r\n        \"y\": {{goal_y}}\r\n    }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/grids/{{lastModelIdCreated}}/run",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "grids",
+            "{{lastModelIdCreated}}",
+            "run"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update grid by cells",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{JWT_TOKEN_USER}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"cellsToUpdate\": [{\r\n        \"x\": 3,\r\n        \"y\": 0\r\n    }],\r\n    \"toApprove\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/updateRequests/{{lastModelIdCreated}}/updateCells",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "updateRequests",
+            "{{lastModelIdCreated}}",
+            "updateCells"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "lastModelIdCreated",
+      "value": "35713e5d-4dd4-4abb-aa2d-b7ec7d531c96"
+    },
+    {
+      "key": "lastUserIdCreated",
+      "value": "73e33b0f-da6d-4c6c-9a32-cfc650bc0dad"
+    },
+    {
+      "key": "saved_username",
+      "value": "user1"
+    },
+    {
+      "key": "saved_password",
+      "value": "userpassword1"
+    },
+    {
+      "key": "random_matrix",
+      "value": "[[0, 0, 0],[0, 0, 0],[0, 0, 0],[0, 0, 0], [0, 1, 0]]"
+    },
+    {
+      "key": "new_random_matrix",
+      "value": ""
+    },
+    {
+      "key": "lastUpdateRequestIdCreated",
+      "value": ""
+    },
+    {
+      "key": "start_x",
+      "value": ""
+    },
+    {
+      "key": "start_y",
+      "value": ""
+    },
+    {
+      "key": "goal_x",
+      "value": ""
+    },
+    {
+      "key": "goal_y",
+      "value": ""
+    }
+  ]
+}

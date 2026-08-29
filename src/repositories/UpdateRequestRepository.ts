@@ -8,6 +8,7 @@ import { Op, Transaction } from "sequelize";
 export class UpdateRequestRepository implements IUpdateRequestRepository{
     async createUpdateRequest(updateRequest: UpdateRequest, transaction?: Transaction): Promise<void> {
         await UpdateRequest.create({
+            id: updateRequest.id,
             modelId: updateRequest.modelId,
             userId: updateRequest.userId,
             status: updateRequest.status,
