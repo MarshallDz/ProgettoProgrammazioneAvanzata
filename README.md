@@ -353,6 +353,64 @@ router.use(
 
 # Avviare il progetto con Docker
 
+Il progetto è configurato per essere eseguito tramite Docker Compose, in modo da avviare contemporaneamente:
+
+- il backend Node.js/TypeScript;
+- il database PostgreSQL;
+- le variabili di ambiente necessarie per l'applicazione.
+
+La configurazione è definita in `docker-compose.yaml`, mentre l'immagine dell'applicazione viene costruita dal `Dockerfile` presente alla radice del repository.
+
+## Struttura dei servizi
+
+### `app`
+
+Il servizio `app` costruisce l'immagine del backend partendo dal `Dockerfile` e espone la porta configurata tramite la variabile `PORT` (di default `3000`).
+
+Durante l'avvio, il container riceve le seguenti variabili d'ambiente:
+
+- `PORT`: porta HTTP del backend;
+- `DB_HOST`: host del database, impostato su `postgres` all'interno della rete Docker;
+- `DB_NAME`: nome del database PostgreSQL;
+- `DB_USER`: utente del database;
+- `DB_PASSWORD`: password del database;
+- `JWT_PRIVATE_KEY`: chiave privata usata per firmare i JWT;
+- `JWT_PUBLIC_KEY`: chiave pubblica usata per verificare i token.
+
+Il container dipende dal servizio `postgres` e attende che il database sia pronto tramite un health check.
+
+### `postgres`
+
+Il servizio `postgres` usa l'immagine ufficiale `postgres:18` e crea un database iniziale con le credenziali definite nelle variabili di ambiente.
+
+Per persistenza dei dati viene usato un volume Docker chiamato `postgres_data`, in modo che i dati del database rimangano disponibili anche dopo lo stop e il riavvio dei container.
+
+## Avvio rapido
+
+Per costruire e avviare tutti i servizi:
+
+```bash
+docker compose up --build
+```
+
+Per arrestare i container:
+
+```bash
+docker compose down
+```
+
+Per eliminare anche i dati persistenti del database:
+
+```bash
+docker compose down -v
+```
+
+## Nota importante
+
+Prima di avviare Docker, assicurarsi che il file `.env` contenga tutte le variabili richieste dal progetto, in particolare quelle relative al database e ai JWT, perché `docker-compose.yaml` le legge dall'ambiente locale.
+
+Questo setup rende il deploy locale semplice e riproducibile, evitando di dover configurare manualmente il backend e il database sul proprio host.
+
 # Test con jest
 
 Il progetto utilizza **Jest** per eseguire test unitari sui middleware Express.
@@ -411,3 +469,129 @@ solo il comportamento dei middleware e simulano le risposte dei repository.
 
 
 # Postman
+
+Nella cartella `postman` sono presenti una collection e un environment per testare facilmente il backend tramite Postman.
+
+## Collection
+
+Il file `postman/ProgettoProgrammazioneAvanzata.postman_collection.json` contiene i request principali dell'API, tra cui:
+
+- login di amministratore e utenti;
+- health check del server;
+- creazione e aggiornamento di griglie;
+- esecuzione di un modello;
+- gestione delle richieste di aggiornamento;
+- controllo di stato e pending updates;
+- aggiornamento del credito utente riservato all'admin.
+
+## Variabili di ambiente
+
+Il file `postman/ProgettoProgrammazioneAvanzataEnv.postman_environment.json` definisce le variabili utili per eseguire i test in locale:
+
+- `BASE_URI`: base URL del backend (default: `http://localhost`);
+- `PORT`: porta del server (default: `3000`);
+- `JWT_TOKEN_ADMIN`: token JWT ottenuto tramite login admin;
+- `JWT_TOKEN_USER`: token JWT ottenuto tramite login utente.
+
+## Come usarla
+
+1. Aprire Postman e importare la collection presente in `postman/ProgettoProgrammazioneAvanzata.postman_collection.json`.
+2. Importare anche l'environment in `postman/ProgettoProgrammazioneAvanzataEnv.postman_environment.json`.
+3. Avviare il backend del progetto in locale.
+4. Eseguire prima il request di login admin o login user per ottenere il JWT e popolare automaticamente la variabile di ambiente.
+5. Se necessario, aggiornare manualmente `BASE_URI` e `PORT` in base alla configurazione del progetto.
+6. Eseguire gli altri endpoint della collection usando i token generati dal login.
+
+> Nota: alcuni endpoint richiedono autenticazione JWT e, in alcuni casi, privilegi di admin. Per questo motivo è utile usare prima i request di login dedicati e poi eseguire le chiamate successive con il token corretto.
+
+> Nota: alcune richieste http sono duplicate al fine di creare un flusso di esecuzione della collection per la dimostrazione della demo.
+
+La maggior parte delle richieste http in postman fa uso di script e di variabili di ambiente e di collection per automatizzare l'esecuzione della collection. Alcuni esempi sono: 
+
+Rotta `api/v1/auth/register`: 
+- Before request: 
+```javascript
+// Genera e salva username random
+const randomName = pm.variables.replaceIn("{{$randomFullName}}");
+pm.collectionVariables.set("saved_username", randomName);
+
+// Genera e salva password random
+const randomPass = pm.variables.replaceIn("{{$randomPassword}}");
+pm.collectionVariables.set("saved_password", randomPass);
+```
+
+- After response: 
+```javascript
+// Legge il JSON di risposta
+const jsonData = pm.response.json();
+
+// Salva l'ID in una variabile di collezione (sostituisci "id" con il nome reale del campo nel tuo JSON)
+pm.collectionVariables.set("lastUserIdCreated", jsonData.data.id);
+```
+
+e nel body della richiesta utilizzo le variabili di collezione: 
+```json
+{
+  "username": "{{saved_username}}",
+  "password": "{{saved_password}}"
+}
+```
+
+Lo stesso body poi viene utilizzato nella rotta di login per un utente. 
+
+Rotta `api/v1/grids`: 
+- Before request: 
+```javascript
+// 1. Genera dimensioni casuali tra 1 e 10
+const rows = Math.floor(Math.random() * 10) + 1;
+const cols = Math.floor(Math.random() * 10) + 1;
+
+// 2. Crea la matrice 2D con valori binari (0 o 1)
+let matrix = [];
+for (let i = 0; i < rows; i++) {
+    let row = [];
+    for (let j = 0; j < cols; j++) {
+        // Genera 0 o 1 casualmente
+        row.push(Math.round(Math.random()));
+    }
+    matrix.push(row);
+}
+
+// 3. Salva la matrice come stringa JSON nella variabile di collezione
+pm.collectionVariables.set("random_matrix", JSON.stringify(matrix));
+```
+In questo modo la griglia viene creata in automatico e salvata in una collection variable. 
+
+- After response: 
+```javascript
+const jsonData = pm.response.json();
+
+pm.collectionVariables.set("lastModelIdCreated", jsonData.data.id);
+```
+In questo modo imposto in una collection variable il nuovo id creato in modo da poterlo usare nei parametri di altre richieste http.
+
+Nel body della richiesta: 
+```json
+{
+    "name": "matrice_{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}",
+    "matrix": {{random_matrix}}
+}
+```
+Anche qui, vengono usate delle funzioni di postman per creare un nuovo nome casuale alla griglia creata.
+
+In fase di sviluppo del backend sono stati fatti dei test facendo run della collection con le chiamate http nel seguente ordine: 
+| Metodo | Nome della richiesta |
+| :--- | :--- |
+| **GET** | Check health |
+| **POST** | Register |
+| **POST** | Login user x |
+| **POST** | Login admin |
+| **PATCH** | Admin update credit |
+| **POST** | Create Grid |
+| **POST** | Run a model |
+| **POST** | Login user y |
+| **PATCH** | Update Grid |
+| **POST** | Login user x 2 |
+| **GET** | Get pending update request of current user |
+| **PATCH** | Update request |
+| **GET** | Get update request by specific model id |
