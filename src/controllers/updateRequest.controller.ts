@@ -27,12 +27,7 @@ export class UpdateRequestController {
      */
     updateRequest = async(req: Request, res: Response, next: NextFunction) => {
         try{
-            const result = await updateRequestSchema.safeParseAsync(req.body);
-            if (!result.success) {
-                const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
-                return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
-            }
-            const { toApprove } = result.data;
+            const { toApprove } = req.body;
             // Get update_request_id of the grid to update
             const id = req.params.id as string;
             
@@ -84,12 +79,7 @@ export class UpdateRequestController {
                 return next(ErrorFactory.createError(ErrorTypes.Unauthorized, 'Unauthorized to accept/reject the request. Not the owner.'));
             }
 
-            const result = await updateRequestByCellsSchema.safeParseAsync(req.body);
-            if (!result.success) {
-                const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
-                return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
-            }
-            const { cellsToUpdate, toApprove } = result.data;
+            const { cellsToUpdate, toApprove } = req.body;
             
             // Fetch the update request from db
             const updateRequest = await this.updateRequestRepository.getUpdateRequestById(id);
@@ -169,12 +159,7 @@ export class UpdateRequestController {
      */
     updateRequestBatch = async(req: Request, res: Response, next: NextFunction) => {
         try{
-            const result = await updateRequestBatchSchema.safeParseAsync(req.body);
-            if (!result.success) {
-                const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
-                return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
-            }
-            const { ids, toApprove } = result.data;
+            const { ids, toApprove } = req.body;
             const currentUserId = req.user.id;
 
             // Array of valid ids that can be accepted/reject
@@ -217,13 +202,7 @@ export class UpdateRequestController {
      */
     getRequestsByModelId = async(req: Request, res: Response, next: NextFunction) => {
         try{
-            const result = await getRequestsByModelIdSchema.safeParseAsync(req.query);
-            if (!result.success) {
-                const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
-                return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
-            }
-
-            const {from, to, status} = result.data;
+            const {from, to, status} = req.query as any;
             const modelId = req.params["modelId"] as string;
             
             // Retrieve the update request from db

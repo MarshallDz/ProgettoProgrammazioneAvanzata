@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { Request, Response } from 'express';
 import { authenticateToken, authorizeAdmin } from '../middleware/auth.middleware';
 import { checkUserExists, checkUserCredit } from '../middleware/user.middleware';
-import { updateUserCredits } from '../controllers/admin.controller';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import authRoutes from './auth.routes';
 import gridRoutes from './grid.routes';

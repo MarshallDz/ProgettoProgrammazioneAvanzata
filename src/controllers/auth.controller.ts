@@ -1,10 +1,8 @@
 import User from "../models/User";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { authSchema } from "../validation/user.validation";
 import { Request, Response, NextFunction } from "express";
 import { ErrorFactory, ErrorTypes } from "../utils/errorFactory";
-import { z } from "zod";
 import { SuccessFactory, SuccessTypes } from "../utils/successFactory";
 import dotenv from "dotenv";
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
@@ -30,14 +28,7 @@ export class UserController {
    */
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Validate the request body
-      var result = await authSchema.safeParseAsync(req.body);
-      if (!result.success) {
-        const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
-        return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
-      }
-
-      const { username, password } = result.data;
+      const { username, password } = req.body;
       // Check if the user already exists
       const existingUser = await User.findOne({ where: { username } });
       if (existingUser) {
@@ -53,10 +44,6 @@ export class UserController {
       SuccessFactory.createSuccess(SuccessTypes.Created, `User registered successfully.`, toUserResponseDto(newUser)).send(res);
     } catch (error) {
       console.error(error);
-      if (error instanceof z.ZodError) {
-        const errorMessage = error.issues.map(issue => issue.message).join(", ");
-        throw ErrorFactory.createError(ErrorTypes.ZodError, errorMessage);
-      }
       return next(ErrorFactory.createError(ErrorTypes.InternalServerError, "Internal server error."));
     }
   };
@@ -76,8 +63,7 @@ export class UserController {
     const { username, password } = req.body;
 
     try {
-      // Validate the request body
-      await authSchema.parseAsync(req.body);
+      // request body validated by route middleware
 
       // Find the user by username
       const user = await User.findOne({ where: { username } });
@@ -99,12 +85,6 @@ export class UserController {
       });
       SuccessFactory.createSuccess(SuccessTypes.Ok, `Login successfull.`, token).send(res);
     } catch (error) {
-      console.error(error);
-      if (error instanceof z.ZodError) {
-        const errorMessage = error.issues.map(issue => issue.message).join(", ");
-        return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
-      }
-
       return next(ErrorFactory.createError(ErrorTypes.InternalServerError, "Internal server error."));
     }
   };  

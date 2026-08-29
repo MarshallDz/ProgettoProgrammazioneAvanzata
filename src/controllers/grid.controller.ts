@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import { AStarFinder } from 'astar-typescript';
-import { gridSchema, gridUpdateSchema, gridExecutionSchema } from '../validation/grid.validation';
 import { IUserRepository } from '../interfaces/repositories/IUserRepository';
 import { IGridRepository } from '../interfaces/repositories/IGridRepository';
 import { IUpdateRequestRepository } from "../interfaces/repositories/IUpdateRequestRepository";
@@ -33,13 +32,7 @@ export class GridController {
      */
     createGrid = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await gridSchema.safeParseAsync(req.body);
-            if (!result.success) {
-                const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
-                return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
-            }
-
-            const { name, matrix, width, height } = result.data;
+            const { name, matrix, width, height } = req.body;
 
             let aStarInstance: AStarFinder;
             if (matrix) {
@@ -102,12 +95,7 @@ export class GridController {
     updateGrid = async (req: Request, res: Response, next: NextFunction) => {
         try {
             let updateRequest: UpdateRequest = new UpdateRequest();
-            const result = await gridUpdateSchema.safeParseAsync(req.body);
-            if (!result.success) {
-                const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
-                return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
-            }
-            const { matrix } = result.data;
+            const { matrix } = req.body;
 
             // Get grid_id of the grid to update
             const id = req.params.modelId as string;
@@ -163,13 +151,7 @@ export class GridController {
         try{
             const gridId = req.params["modelId"] as string;
             const userId = req.user.id;
-            const result = await gridExecutionSchema.safeParseAsync(req.body);
-            if (!result.success) {
-                const errorMessage = result.error.issues.map(issue => issue.message).join(", ");
-                return next(ErrorFactory.createError(ErrorTypes.ZodError, errorMessage));
-            }
-            
-            const {start, goal} = result.data
+            const {start, goal} = req.body;
 
             // Fetch grid from db
             const grid = await this.gridRepository.getGridById(gridId);
