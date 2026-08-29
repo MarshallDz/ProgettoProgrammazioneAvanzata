@@ -100,6 +100,26 @@
       "response": []
     },
     {
+      "name": "Check health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/health",
+          "host": [
+            "{{BASE_URI}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "api",
+            "v1",
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Login user y",
       "event": [
         {
@@ -186,26 +206,6 @@
             "v1",
             "auth",
             "login"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Check health",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{BASE_URI}}:{{PORT}}/api/v1/health",
-          "host": [
-            "{{BASE_URI}}"
-          ],
-          "port": "{{PORT}}",
-          "path": [
-            "api",
-            "v1",
-            "health"
           ]
         }
       },
@@ -369,7 +369,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "// 1. Recupera la matrice salvata nella variabile di collezione\r\nconst matrixString = pm.collectionVariables.get(\"random_matrix\");\r\n\r\nif (!matrixString) {\r\n    console.log(\"Nessuna matrice trovata in 'random_matrix'. Esegui prima la generazione.\");\r\n} else {\r\n    // Converte la stringa JSON di nuovo in un array 2D\r\n    let matrix = JSON.parse(matrixString);\r\n    \r\n    const rows = matrix.length;\r\n    const cols = matrix[0].length;\r\n    \r\n    // 2. Modifica i valori delle celle \r\n    for (let i = 0; i < rows; i++) {\r\n        for (let j = 0; j < cols; j++) {          \r\n            // Rigenera un valore binario casuale per ogni cella\r\n            matrix[i][j] = Math.round(Math.random());\r\n        }\r\n    }\r\n    \r\n    // 3. Salva nuovamente la matrice aggiornata nella variabile di collezione\r\n    pm.collectionVariables.set(\"new_random_matrix\", JSON.stringify(matrix));    \r\n}"
+              "// 1. Recupera la matrice salvata nella variabile di collezione\r\nconst matrixString = pm.collectionVariables.get(\"random_matrix\");\r\n\r\nif (!matrixString) {\r\n    console.log(\"Nessuna matrice trovata in 'random_matrix'. Esegui prima la generazione.\");\r\n} else {\r\n    // Converte la stringa JSON di nuovo in un array 2D\r\n    let matrix = JSON.parse(matrixString);\r\n    \r\n    const cols = matrix.length;\r\n    const rows = matrix[0].length;\r\n    \r\n    // 2. Modifica i valori delle celle \r\n    for (let i = 0; i < rows; i++) {\r\n        for (let j = 0; j < cols; j++) {          \r\n            // Rigenera un valore binario casuale per ogni cella\r\n            matrix[i][j] = Math.round(Math.random());\r\n        }\r\n    }\r\n    \r\n    // 3. Salva nuovamente la matrice aggiornata nella variabile di collezione\r\n    pm.collectionVariables.set(\"new_random_matrix\", JSON.stringify(matrix));    \r\n}"
             ]
           }
         },
@@ -619,7 +619,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "// 1. Recupera la matrice dalle collection variables\r\nconst matrixString = pm.collectionVariables.get(\"random_matrix\");\r\n\r\nif (!matrixString) {\r\n    console.log(\"Nessuna matrice trovata in 'random_matrix'.\");\r\n} else {\r\n    const matrix = JSON.parse(matrixString);\r\n    const rows = matrix.length;\r\n    const cols = matrix[0].length;\r\n\r\n    // 2. Funzione per generare punti casuali validi (valore 0, o 1 a seconda delle tue regole)\r\n    function getRandomValidPoint(matrix) {\r\n        const r = matrix.length;\r\n        const c = matrix[0].length;\r\n        \r\n        let x, y;\r\n        let attempts = 0;\r\n        const maxAttempts = r * c * 2;\r\n        \r\n        // Cerca una cella che sia \"attraversabile\" (es. valore 0) \r\n        // oppure rimuovi il controllo se va bene qualsiasi coordinata casuale.\r\n        do {\r\n            x = Math.floor(Math.random() * r);\r\n            y = Math.floor(Math.random() * c);\r\n            attempts++;\r\n            // Supponiamo che il punto sia valido se la cella è 0 (libera)\r\n            if (matrix[x][y] === 0 || attempts > maxAttempts) {\r\n                break;\r\n            }\r\n        } while (true);\r\n        \r\n        return { x: x, y: y };\r\n    }\r\n\r\n    // 3. Genera start e goal\r\n    const start = getRandomValidPoint(matrix);\r\n    const goal = getRandomValidPoint(matrix);\r\n\r\n    // Salva i punti nelle collection variables per poterli riusare nelle chiamate successive\r\n    pm.collectionVariables.set(\"start_x\", start.x);\r\n    pm.collectionVariables.set(\"start_y\", start.y);\r\n    pm.collectionVariables.set(\"goal_x\", goal.x);\r\n    pm.collectionVariables.set(\"goal_y\", goal.y);\r\n\r\n    console.log(`Start generato: (${start.x}, ${start.y}) -> Valore: ${matrix[start.x][start.y]}`);\r\n    console.log(`Goal generato: (${goal.x}, ${goal.y}) -> Valore: ${matrix[goal.x][goal.y]}`);\r\n}"
+              "// 1. Recupera la matrice dalle collection variables\r\nconst matrixString = pm.collectionVariables.get(\"random_matrix\");\r\n\r\nif (!matrixString) {\r\n    console.log(\"Nessuna matrice trovata in 'random_matrix'.\");\r\n} else {\r\n    const matrix = JSON.parse(matrixString);\r\n\r\n    // 2. Funzione per generare punti casuali validi (valore 0, o 1 a seconda delle tue regole)\r\n    function getRandomValidPoint(matrix) {\r\n        const r = matrix.length;\r\n        const c = matrix[0].length;\r\n        \r\n        let x, y;\r\n        let attempts = 0;\r\n        const maxAttempts = r * c * 2;\r\n        \r\n        // Cerca una cella che sia \"attraversabile\" (es. valore 0) \r\n        // oppure rimuovi il controllo se va bene qualsiasi coordinata casuale.\r\n        do {\r\n            x = Math.floor(Math.random() * r);\r\n            y = Math.floor(Math.random() * c);\r\n            attempts++;\r\n            // Supponiamo che il punto sia valido se la cella è 0 (libera)\r\n            if (matrix[x][y] === 0 || attempts > maxAttempts) {\r\n                break;\r\n            }\r\n        } while (true);\r\n        \r\n        return { x: x, y: y };\r\n    }\r\n\r\n    // 3. Genera goal\r\n    const goal = getRandomValidPoint(matrix);\r\n\r\n    // Salva i punti nelle collection variables per poterli riusare nelle chiamate successive\r\n    pm.collectionVariables.set(\"goal_x\", goal.x);\r\n    pm.collectionVariables.set(\"goal_y\", goal.y);\r\n}"
             ]
           }
         }

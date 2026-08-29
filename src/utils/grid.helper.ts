@@ -45,6 +45,28 @@ export function countChangedCells(matrixA: number[][], matrixB: number[][]): num
 }
 
 /**
+ * Verifies that the user has enough credit to perform an operation.
+ *
+ * @param userRepository Repository used to retrieve the user profile.
+ * @param userId Identifier of the user to validate.
+ * @param requiredCredit Minimum credit required for the operation.
+ * @param transaction Optional Sequelize transaction to use for the query.
+ * @returns The retrieved user if the credit is sufficient.
+ * @throws ErrorFactory.NotFound If the user does not exist.
+ * @throws ErrorFactory.InsufficientCreditError If the user does not have enough credit.
+ */
+export async function checkSufficientUserCredit(userRepository: IUserRepository, userId: string, requiredCredit: number, transaction?: Transaction): Promise<User> {
+    const user = await userRepository.getUserById(userId, transaction);
+    if (!user) {
+        throw ErrorFactory.createError(ErrorTypes.NotFound, "User not found");
+    }
+    if (user.tokenCredit < requiredCredit) {
+        throw ErrorFactory.createError(ErrorTypes.InsufficientCreditError, 'Insufficient credit');
+    }
+    return user;
+}
+
+/**
  * Checks whether the current user is the owner of the grid associated with an update request.
  *
  * @param requestId Identifier of the update request.
