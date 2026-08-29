@@ -6,15 +6,14 @@ import { IUserRepository } from '../interfaces/repositories/IUserRepository';
 import { IGridRepository } from '../interfaces/repositories/IGridRepository';
 import { IUpdateRequestRepository } from "../interfaces/repositories/IUpdateRequestRepository";
 import Grid from "../models/Grid";
-import { checkSufficientUserCredit, countChangedCells } from '../utils/grid.helper';
+import { checkSufficientUserCredit, countChangedCells, COST_PER_CELL_CREATION, COST_PER_CELL_UPDATE } from '../utils/grid.helper';
 import UpdateRequest from '../models/UpdateRequest';
 import { UpdateStatus } from '../types/updateStatus';
 import sequelize from '../config/database';
 import { Transaction } from 'sequelize';
 import { SuccessFactory, SuccessTypes } from '../utils/successFactory';
 
-const COST_PER_CELL_CREATION = 0.025;
-const COST_PER_CELL_UPDATE = 0.3;
+
 
 export class GridController {
     constructor(private userRepository: IUserRepository, private gridRepository: IGridRepository, private updateRequestRepository: IUpdateRequestRepository) { }

@@ -35,15 +35,6 @@ export class GridRepository implements IGridRepository {
         );
     }
 
-    async deleteGrid(id: string): Promise<boolean> {
-        const deletedCount = await Grid.destroy({ where: { id } });
-        return deletedCount > 0;
-    }
-
-    async getAllGrids(): Promise<Grid[]> {
-        return await Grid.findAll();
-    }
-
     async getAllGridsByUserId(userId: string): Promise<Grid[]> {
         return await Grid.findAll({
             where: {

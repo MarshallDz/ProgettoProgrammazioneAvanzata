@@ -6,7 +6,24 @@ import User from "../models/User";
 import { IUpdateRequestRepository } from "../interfaces/repositories/IUpdateRequestRepository";
 import { IGridRepository } from "../interfaces/repositories/IGridRepository";
 
+/**
+ * Cost in tokens required to create a new grid cell.
+ */
+export const COST_PER_CELL_CREATION = 0.025;
 
+/**
+ * Cost in tokens required to update an existing grid cell.
+ */
+export const COST_PER_CELL_UPDATE = 0.3;
+
+/**
+ * Compares two matrices and counts how many cells differ.
+ *
+ * @param matrixA The first matrix to compare.
+ * @param matrixB The second matrix to compare.
+ * @returns The number of cells whose values are different.
+ * @throws ErrorFactory.BadRequest If the matrices do not have the same dimensions.
+ */
 export function countChangedCells(matrixA: number[][], matrixB: number[][]): number {
     let changeCount = 0;
 
@@ -27,8 +44,18 @@ export function countChangedCells(matrixA: number[][], matrixB: number[][]): num
     return changeCount;
 }
 
-// 
-export async function checkSufficientUserCredit(userRepository: IUserRepository, userId: string, requiredCredit: number, transaction?: Transaction): Promise<User>{
+/**
+ * Verifies that the user has enough credit to perform an operation.
+ *
+ * @param userRepository Repository used to retrieve the user profile.
+ * @param userId Identifier of the user to validate.
+ * @param requiredCredit Minimum credit required for the operation.
+ * @param transaction Optional Sequelize transaction to use for the query.
+ * @returns The retrieved user if the credit is sufficient.
+ * @throws ErrorFactory.NotFound If the user does not exist.
+ * @throws ErrorFactory.InsufficientCreditError If the user does not have enough credit.
+ */
+export async function checkSufficientUserCredit(userRepository: IUserRepository, userId: string, requiredCredit: number, transaction?: Transaction): Promise<User> {
     const user = await userRepository.getUserById(userId, transaction);
     if (!user) {
         throw ErrorFactory.createError(ErrorTypes.NotFound, "User not found");
@@ -39,10 +66,20 @@ export async function checkSufficientUserCredit(userRepository: IUserRepository,
     return user;
 }
 
+/**
+ * Checks whether the current user is the owner of the grid associated with an update request.
+ *
+ * @param requestId Identifier of the update request.
+ * @param currentUserId Identifier of the user attempting the operation.
+ * @param updateRequestRepository Repository for update requests.
+ * @param gridRepository Repository for grids.
+ * @returns True if the current user is the grid owner, otherwise false.
+ * @throws ErrorFactory.NotFound If the update request does not exist.
+ */
 export async function checkOwner(requestId: string, currentUserId: string, updateRequestRepository: IUpdateRequestRepository, gridRepository: IGridRepository): Promise<boolean> {
     // Get the update request from db
     const updateRequest = await updateRequestRepository.getUpdateRequestById(requestId);
-    if(!updateRequest){
+    if (!updateRequest) {
         throw ErrorFactory.createError(ErrorTypes.NotFound, 'Update request not found');
     }
     // Get the grid that is gonna be updated
