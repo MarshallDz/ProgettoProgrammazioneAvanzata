@@ -411,6 +411,12 @@ Prima di avviare Docker, assicurarsi che il file `.env` contenga tutte le variab
 
 Questo setup rende il deploy locale semplice e riproducibile, evitando di dover configurare manualmente il backend e il database sul proprio host.
 
+Per eseguire il seed del database all'interno del container del web service, lanciare il comando: 
+
+```docker
+docker exec -it progettoprogrammazioneavanzata-app-1 sh -c "npm run seed"     
+```
+
 # Test con jest
 
 Il progetto utilizza **Jest** per eseguire test unitari sui middleware Express.
