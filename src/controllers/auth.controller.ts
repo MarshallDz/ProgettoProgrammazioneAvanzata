@@ -29,10 +29,11 @@ export class UserController {
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { username, password } = req.body;
+      
       // Check if the user already exists
-      const existingUser = await User.findOne({ where: { username } });
+      const existingUser = await this.userRepository.getUserByUsername(username);
       if (existingUser) {
-        return res.status(400).json({ error: "Username already exists." });
+        return next(ErrorFactory.createError(ErrorTypes.BadRequest, 'Username already exists.'));
       }
 
       // Hash the password
@@ -66,7 +67,7 @@ export class UserController {
       // request body validated by route middleware
 
       // Find the user by username
-      const user = await User.findOne({ where: { username } });
+      const user = await this.userRepository.getUserByUsername(username);
       if (!user) {
         return next(ErrorFactory.createError(ErrorTypes.Unauthorized, "Invalid username or password."));
       }
