@@ -14,7 +14,7 @@ const matrixSchema = z.array(z.array(cellSchema))
 
 // Grid validation schema, matrix or width and height must be provided
 export const gridSchema = z.object({
-    name: z.string("Name is mandatory"),
+    name: z.string("Name is mandatory").trim(),
     matrix: matrixSchema.optional(),
     width: z.number().int().positive("Width must be a positive integer").optional(),
     height: z.number().int().positive("Height must be a positive integer").optional(),
