@@ -17,6 +17,15 @@ export class UserRepository implements IUserRepository{
             lock: transaction ? transaction.LOCK.UPDATE : undefined,
         });
     }
+    async getUserByUsername(username: string, transaction?: Transaction): Promise<User | null> {
+        return await User.findOne({
+            where: {
+                username: username
+            },
+            transaction,
+            lock: transaction ? transaction.LOCK.UPDATE : undefined,
+        });
+    }
 
     async getAllUsers(): Promise<User[]>{
         return await User.findAll();
