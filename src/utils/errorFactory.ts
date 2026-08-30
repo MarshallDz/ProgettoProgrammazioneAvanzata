@@ -1,9 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { ZodError } from 'zod';
 
-/**
- * Estensione della classe Error per aggiungere le proprietà statusCode e code
- */
 export class HttpError extends Error {
     statusCode: number;
     code: string;
@@ -16,9 +13,6 @@ export class HttpError extends Error {
     }
   }
 
-  /**
-   * Enum di tutti i possibili errori che possono essere gestiti
-   */
 export enum ErrorTypes {
     NotFound = 'NotFound',
     BadRequest = 'BadRequest',
@@ -33,9 +27,6 @@ export enum ErrorTypes {
     InsufficientCreditError = 'InsufficientCreditError'
   }
   
-  /**
-   * Utilizzo del pattern factory per creare istanze di Httperror basate sugli Enum
-   */
   export class ErrorFactory {
     static createError(type: ErrorTypes, message: string): HttpError {
       switch (type) {
