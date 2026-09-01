@@ -46,7 +46,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 export const authorizeAdmin = (req: Request, res: Response, next: NextFunction) => {
   const user = req.user;
   if (user.role !== Role.ADMIN) {
-    throw ErrorFactory.createError(ErrorTypes.Forbidden, 'Accesso negato. Solo gli amministratori possono accedere a questa risorsa.'); // Forbidden
+    return next(ErrorFactory.createError(ErrorTypes.Forbidden, 'Accesso negato. Solo gli amministratori possono accedere a questa risorsa.')); // Forbidden
   }
   next();
 };
