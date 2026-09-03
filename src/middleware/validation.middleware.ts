@@ -51,7 +51,9 @@ export function validateData(schema: z.ZodObject<any, any>, source: 'body' |'que
       }
 
       // Replace the original source with the validated data
-      (req as any)[source] = result.data;
+      if(source === 'body') {
+        (req as any).body = result.data;
+      }
       return next();
     } catch (error) {
       if (error instanceof ZodError) {
