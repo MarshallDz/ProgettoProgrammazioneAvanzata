@@ -2,7 +2,6 @@ import {Request, Response, NextFunction} from 'express';
 import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import { IUpdateRequestRepository } from '../interfaces/repositories/IUpdateRequestRepository';
 import { IGridRepository } from '../interfaces/repositories/IGridRepository';
-import { updateRequestSchema, updateRequestBatchSchema, getRequestsByModelIdSchema, updateRequestByCellsSchema } from '../validation/updateRequest.validation';
 import { UpdateStatus } from '../types/updateStatus';
 import UpdateRequest from '../models/UpdateRequest';
 import { SuccessFactory, SuccessTypes } from '../utils/successFactory';
@@ -38,17 +37,8 @@ export class UpdateRequestController {
                 return next(ErrorFactory.createError(ErrorTypes.Unauthorized, 'Unauthorized to accept/reject the request. Not the owner.'));
             }
 
-            // Fetch the update request from db
-            const updateRequest = await this.updateRequestRepository.getUpdateRequestById(id);
+            await this.applyUpdateDecision(id, toApprove);
 
-            // If the update request is approved, the grid is updated, otherwise the update only the status of update request
-            if(toApprove){
-                await sequelize.transaction(async (transaction: Transaction) => {                
-                    await this.gridRepository.updateGrid(updateRequest!.modelId, updateRequest!.gridData, transaction);
-                    await this.updateRequestRepository.updateRequest(toApprove, id, transaction);
-                });
-            }
-            else await this.updateRequestRepository.updateRequest(toApprove, id);
             SuccessFactory.createSuccess(SuccessTypes.Updated, `Richiesta ${id} aggiornata con successo`).send(res);
         }
         catch(err){
@@ -180,7 +170,7 @@ export class UpdateRequestController {
 
             // For each update request in the batch update the status with approve/reject             
             for (const id of validIds) {
-                await this.updateRequestRepository.updateRequest(toApprove, id);
+                await this.applyUpdateDecision(id, toApprove);
             }
             SuccessFactory.createSuccess(SuccessTypes.Updated, `Request for valid ids successfully updated`, {validIds: validIds, invalidIds: invalidIds}).send(res);
         }
@@ -268,6 +258,35 @@ export class UpdateRequestController {
         }
         catch(err){
             next(err);
+        }
+    }
+
+    /**
+     * Applies the final decision for an update request.
+     *
+     * If the request is approved, the associated grid is updated with the
+     * pending data and the request status is persisted in the same database
+     * transaction. If the request is rejected, only the request status is
+     * updated without modifying the grid.
+     *
+     * @param id - Identifier of the update request to process.
+     * @param toApprove - Whether the update request should be approved.
+     * @param transaction - Optional existing transaction to reuse when the
+     * caller is already inside a DB transaction.
+     */
+    private async applyUpdateDecision(id: string, toApprove: boolean, transaction?: Transaction) {
+        // Fetch the update request from db
+        const updateRequest = await this.updateRequestRepository.getUpdateRequestById(id);
+
+        // If the update request is approved, the grid is updated, otherwise the update only the status of update request
+        if(toApprove){
+            await sequelize.transaction(async (transaction: Transaction) => {                
+                await this.gridRepository.updateGrid(updateRequest!.modelId, updateRequest!.gridData, transaction);
+                await this.updateRequestRepository.updateRequest(toApprove, id, transaction);
+            });
+        }
+        else{
+            await this.updateRequestRepository.updateRequest(toApprove, id);
         }
     }
 }
