@@ -3,6 +3,7 @@ import { ErrorFactory, ErrorTypes } from '../utils/errorFactory';
 import { adminSchema } from '../validation/user.validation';
 import { SuccessFactory, SuccessTypes } from '../utils/successFactory';
 import { UserRepository } from '../repositories/UserRepository';
+import { toUserResponseDto } from '../DTOs/UserResponseDto';
 
 const userRepository = new UserRepository();
 /**
@@ -30,7 +31,8 @@ export const updateUserCredits = async (req: Request, res: Response, next: NextF
 
     await userRepository.updateCredit(id, newCredit);
     const updatedUser = await userRepository.getUserById(id);
-    SuccessFactory.createSuccess(SuccessTypes.Updated, `User credit updated successfully.`, updatedUser).send(res);
+    const responseUser = toUserResponseDto(updatedUser!);
+    SuccessFactory.createSuccess(SuccessTypes.Updated, `User credit updated successfully.`, responseUser).send(res);
   } 
   catch (error) {
     return next(ErrorFactory.createError(ErrorTypes.InternalServerError, 'Internal server error.'));
