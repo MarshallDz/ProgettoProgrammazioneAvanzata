@@ -476,7 +476,7 @@ solo il comportamento dei middleware e simulano le risposte dei repository.
 
 # Postman
 
-Nella cartella `postman` sono presenti una collection e un environment per testare facilmente il backend tramite Postman.
+Nella cartella `postman`è presente una collection per testare facilmente il backend tramite Postman.
 
 ## Collection
 
@@ -490,25 +490,16 @@ Il file `postman/ProgettoProgrammazioneAvanzata.postman_collection.json` contien
 - controllo di stato e pending updates;
 - aggiornamento del credito utente riservato all'admin.
 
-## Variabili di ambiente
-
-Il file `postman/ProgettoProgrammazioneAvanzataEnv.postman_environment.json` definisce le variabili utili per eseguire i test in locale:
-
-- `BASE_URI`: base URL del backend (default: `http://localhost`);
-- `PORT`: porta del server (default: `3000`);
-- `JWT_TOKEN_ADMIN`: token JWT ottenuto tramite login admin;
-- `JWT_TOKEN_USER`: token JWT ottenuto tramite login utente.
-
 ## Come usarla
 
 1. Aprire Postman e importare la collection presente in `postman/ProgettoProgrammazioneAvanzata.postman_collection.json`.
-2. Importare anche l'environment in `postman/ProgettoProgrammazioneAvanzataEnv.postman_environment.json`.
+2. Importare anche l'environment o crearne uno.
 3. Avviare il backend del progetto in locale.
 4. Eseguire prima il request di login admin o login user per ottenere il JWT e popolare automaticamente la variabile di ambiente.
 5. Se necessario, aggiornare manualmente `BASE_URI` e `PORT` in base alla configurazione del progetto.
 6. Eseguire gli altri endpoint della collection usando i token generati dal login.
 
-> Nota: alcuni endpoint richiedono autenticazione JWT e, in alcuni casi, privilegi di admin. Per questo motivo è utile usare prima i request di login dedicati e poi eseguire le chiamate successive con il token corretto.
+> Nota: alcuni endpoint richiedono autenticazione JWT e, in alcuni casi, privilegi di admin. Per questo motivo è utile usare prima le chiamate di login dedicate e poi eseguire le chiamate successive con il token corretto.
 
 > Nota: alcune richieste http sono duplicate al fine di creare un flusso di esecuzione della collection per la dimostrazione della demo.
 
